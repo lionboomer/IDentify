@@ -29,23 +29,15 @@ The expected outcomes and impact of IDentify include:
 
 ## Getting Started
 
-To get started with IDentify, follow these steps:
-1. Clone the repository: `git clone <repository-url>`
-2. Install dependencies: `npm install`
-3. Follow the setup instructions in the `docs/setup.md` file.
-4. Start the application: `npm start`
-
-## Contribution Guidelines
-
-We welcome contributions from the community. If you would like to contribute to IDentify, please review our [contribution guidelines](CONTRIBUTING.md).
+work in progress
 
 ## License
 
-IDentify is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+IDentify is licensed under nothing yet.
 
 ## Contact
 
-For questions or inquiries about IDentify, please contact [project-team@example.com](mailto:project-team@example.com).
+For questions or inquiries about IDentify, please contact [lion.witte@kobil.com](mailto:lion.witte@kobil.com).
 
 ## Literature Review
 
