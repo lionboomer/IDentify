@@ -1,0 +1,15 @@
+{
+  "name": "identify",
+  "version": "1.0.0",
+  "description": "Welcome to IDentify, a project aimed at enhancing web application security through innovative machine learning-powered device fingerprinting techniques.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "puppeteer": "^22.7.0"
+  },
+  "author": "Lion Witte",
+  "license": "ISC"
+}

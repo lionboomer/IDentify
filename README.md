@@ -29,7 +29,33 @@ The expected outcomes and impact of IDentify include:
 
 ## Getting Started
 
-work in progress
+- `starter.py`: Dieses Python-Skript verwaltet den Docker-Container, in dem der Node.js-Server läuft. Es kann den Container erstellen, starten, stoppen und den Status überprüfen.
+
+- `Dockerfile`: Dies ist das Dockerfile für den Docker-Container. Es erstellt ein Image basierend auf dem offiziellen Node.js-Image, kopiert die Anwendungsdateien in den Container und startet den Server, wenn der Container gestartet wird.
+
+- `app.js`: Dies ist der Hauptcode für den Node.js-Server. Es definiert einen einfachen Express-Server, der statische Dateien aus dem `public`-Verzeichnis ausliefert und ein Skript ausführt, wenn auf die Hauptseite zugegriffen wird.
+
+- `evaluate.js`: Dieses JavaScript-Datei verwendet Puppeteer, um einen Webseitenzugriff zu simulieren. Es setzt den User-Agent und den Viewport des Browsers und greift auf die Webseite zu.
+
+- `fingerprint.js`: Dieses JavaScript-Datei sammelt Daten für die Browser-Fingerprinting-Analyse. Es sammelt Daten von WebGL, Canvas und dem Browser selbst und speichert sie in einer Datei.
+
+## Anforderungen
+
+- Python 3
+- Docker
+- Node.js
+
+## Verwendung
+
+1. Stellen Sie sicher, dass Sie Docker auf Ihrem System installiert haben.
+2. Führen Sie `python starter.py start` aus, um den Docker-Container zu erstellen und zu starten.
+3. Der Server sollte jetzt laufen und auf `http://localhost:3000` erreichbar sein.
+4. Sie können `python starter.py stop` ausführen, um den Docker-Container zu stoppen.
+
+## Hinweise
+
+- Der Docker-Container verwendet Port 3000. Stellen Sie sicher, dass dieser Port auf Ihrem System verfügbar ist.
+- Die gesammelten Fingerprinting-Daten werden in der Datei `fingerprint.log` gespeichert.
 
 ## License
 
