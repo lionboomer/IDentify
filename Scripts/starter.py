@@ -49,7 +49,6 @@ def manage_container(command):
     image_name = "identify"  # Ersetzen Sie dies durch den Namen Ihres Docker-Images
     # Ersetzen Sie dies durch den Namen Ihres Docker-Containers
     container_name = "IDentify"
-
     # Überprüfen Sie, ob das Docker-Image bereits existiert
     result = subprocess.run(
         ["docker", "images", "-q", image_name], capture_output=True, text=True)
@@ -58,7 +57,7 @@ def manage_container(command):
         print(f"Building the Docker image {image_name}...")
         try:
             subprocess.run(
-                ["docker", "build", "-t", image_name, "."], check=True)
+                ["docker", "build", "-t", image_name, "-f", "./Enviroment/Dockerfiles/Dockerfile.app", "."], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Failed to build the Docker image: {e}")
             return

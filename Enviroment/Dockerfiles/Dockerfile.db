@@ -1,0 +1,12 @@
+FROM mysql:latest
+
+ARG SQL_DIR
+COPY IDentify/Database/*.sql /docker-entrypoint-initdb.d/
+
+# Setzen Sie die Umgebungsvariablen für MySQL
+ENV MYSQL_ROOT_PASSWORD="KOBIL123!"
+ENV MYSQL_DATABASE="fingerprint"
+ENV MYSQL_USER="KOBIL"
+ENV MYSQL_PASSWORD="KOBIL123!"
+VOLUME /var/lib/mysql
+CMD ["mysqld", "--datadir", "/var/lib/mysql", "--user=mysql"]
