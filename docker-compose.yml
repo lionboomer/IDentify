@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Enviroment/Dockerfiles/Dockerfile.app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_HOST=db
+  db:
+    build:
+      context: .
+      dockerfile: Enviroment/Dockerfiles/Dockerfile.db

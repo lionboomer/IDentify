@@ -12,10 +12,11 @@ DEFAULT_TAG = 'latest'
 client = docker.from_env()
 
 def image_exists():
+    images = client.images
     try:
-        client.images.get(f"{IMAGE_NAME}:{DEFAULT_TAG}")
+        images.get(f"{IMAGE_NAME}:{DEFAULT_TAG}")
         return True
-    except docker.errors.ImageNotFound:
+    except docker.errors.NotFound:
         return False
 
 def container_exists():
@@ -52,7 +53,7 @@ def start_container():
         print("Starting the container...")
         container.start()
     print("Waiting for the database to start...")
-    time.sleep(10)
+    #time.sleep(10)
 
 def recreate_all():
     print("Recreating everything...")
@@ -114,8 +115,8 @@ def main():
         start_container()
     print("Printing container status...")
     print_container_status()
-    print("Printing database data...")
-    print_database_data()
+    #print("Printing database data...")
+    #print_database_data()
     print("Script finished.")
 
 

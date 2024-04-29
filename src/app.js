@@ -4,12 +4,32 @@ const port = 3000;
 const mysql = require('mysql');
 
 const connection = mysql.createConnection({
-  host: 'localhost',
+  host: 'db',
   user: 'KOBIL',
   password: 'KOBIL123!',
   database: 'fingerprint'
 });
 
+setTimeout(() => {
+  connection.connect(err => {
+    if (err) {
+      console.error('An error occurred while connecting to the DB')
+      throw err
+    }
+
+    // Erstellen Sie die Tabelle, wenn sie nicht existiert
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS browserFingerprint (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        fingerprint_hash VARCHAR(255) NOT NULL
+      )
+    `;
+    connection.query(createTableQuery, err => {
+      if (err) throw err;
+      console.log("Table 'browserFingerprint' is ready.");
+    });
+  });
+}, 5000);  // Warten Sie 5 Sekunden, bevor Sie versuchen, eine Verbindung herzustellen
 connection.connect(err => {
   if (err) {
     console.error('An error occurred while connecting to the DB')

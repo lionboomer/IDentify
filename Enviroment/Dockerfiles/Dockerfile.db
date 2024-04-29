@@ -1,7 +1,7 @@
 FROM mysql:latest
 
 ARG SQL_DIR
-COPY IDentify/Database/*.sql /docker-entrypoint-initdb.d/
+COPY Database/*.sql /docker-entrypoint-initdb.d/
 
 # Setzen Sie die Umgebungsvariablen für MySQL
 ENV MYSQL_ROOT_PASSWORD="KOBIL123!"
