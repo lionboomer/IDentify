@@ -1,6 +1,21 @@
 import subprocess
 import sys
 import os
+import pkg_resources
+
+def install_python_dependencies():
+    print("Installing Python dependencies... (33% complete)")
+    # Installieren Sie die Python-Abhängigkeiten
+    with open('requirements.txt', 'r') as f:
+        for line in f:
+            package = line.strip()
+            try:
+                dist = pkg_resources.get_distribution(package)
+                print('{} ({}) is already installed'.format(dist.key, dist.version))
+            except pkg_resources.DistributionNotFound:
+                print('{} is NOT installed. Installing now...'.format(package))
+                subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    print("Python dependencies installed.")
 
 def install_python_dependencies():
     print("Installing Python dependencies... (33% complete)")

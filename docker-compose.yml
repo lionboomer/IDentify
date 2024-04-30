@@ -9,7 +9,14 @@ services:
       - db
     environment:
       - DATABASE_HOST=db
+      - DATABASE_PORT=3306
   db:
     build:
       context: .
       dockerfile: Enviroment/Dockerfiles/Dockerfile.db
+    environment: 
+      MYSQL_ROOT_PASSWORD: KOBIL123!
+      MYSQL_DATABASE: fingerprint
+    restart: always
+    ports:
+      - "3306:3306"

@@ -1,12 +1,11 @@
 FROM mysql:latest
 
-ARG SQL_DIR
-COPY Database/*.sql /docker-entrypoint-initdb.d/
-
 # Setzen Sie die Umgebungsvariablen für MySQL
-ENV MYSQL_ROOT_PASSWORD="KOBIL123!"
-ENV MYSQL_DATABASE="fingerprint"
-ENV MYSQL_USER="KOBIL"
-ENV MYSQL_PASSWORD="KOBIL123!"
-VOLUME /var/lib/mysql
-CMD ["mysqld", "--datadir", "/var/lib/mysql", "--user=mysql"]
+ENV MYSQL_ROOT_PASSWORD=KOBIL123!
+ENV MYSQL_DATABASE=fingerprint
+
+# Kopieren Sie die init.sql-Datei in das Docker-Image
+COPY Database/init.sql /docker-entrypoint-initdb.d/
+
+# Expose port 3306
+EXPOSE 3306

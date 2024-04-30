@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS fingerprints (
+CREATE TABLE IF NOT EXISTS fingerprint (
     id INT AUTO_INCREMENT PRIMARY KEY,
     browserFingerprint VARCHAR(255) NOT NULL,
     canvasFingerprint VARCHAR(255) NOT NULL,
