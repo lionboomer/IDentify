@@ -67,12 +67,21 @@ For questions or inquiries about IDentify, please contact [lion.witte@kobil.com]
 
 ## Literature Review
 
-- [ ] Survey on Device Fingerprinting Techniques: [IEEE](https://ieeexplore.ieee.org/abstract/document/9519502)
-- [ ] Survey on Device Fingerprinting Techniques: [arXiv](https://arxiv.org/abs/1905.01051)
-- [ ] Machine Learning for Cybersecurity: [ACM](https://dl.acm.org/doi/abs/10.1145/3386040?casa_token=027mVneiDnwAAAAA:MnDDy8r-IfQwmX69w4iuJZQo2Ow8EG__mWksXG2W5ttQ-ycGeb3PHSP2qTlpCTNmQCxo8LyT4eM)
-- [ ] Enhancing Cybersecurity with Machine Learning: [Emerald Insight](https://www.emerald.com/insight/content/doi/10.1108/JIC-04-2019-0067/full/html?casa_token=3GomGpyTYG0AAAAA:DHZzDpRn-wGuWNLt6pk3fVKcwCiIwjrgQoM7Dp67g5MjAnCTE68ub8E5oOKQzu5U-FTp5cOHk6XUG6C5Gjf0G08KcNUqK8GSSBlGjpPtKj8Ztih1Og)
-- [ ] Advances in Machine Learning for Cybersecurity: [ACM](https://dl.acm.org/doi/abs/10.1145/3243734.3243768)
-- [ ] Machine Learning Techniques for Security: [IEEE](https://ieeexplore.ieee.org/abstract/document/10431413)
+- [ ] Machine Learning for Cybersecurity: [ACM](https://dl.acm.org/doi/abs/10.1145/3386040?casa_token=027mVneiDnwAAAAA:MnDDy8r-IfQwmX69w4iuJZQo2Ow8EG__mWksXG2W5ttQ-ycGeb3PHSP2qTlpCTNmQCxo8LyT4eU)
+- [ ] [Web-based Fingerprinting Techniques](https://www.scitepress.org/PublishedPapers/2016/59656/59656.pdf)  
+  Bernardo V. and Domingos D. (2016). In Proceedings of the 13th International Joint Conference on e-Business and Telecommunications - Volume 4: SECRYPT, (ICETE 2016) ISBN 978-989-758-196-0, pages 271-282. DOI: [10.5220/0005965602710282](https://doi.org/10.5220/0005965602710282)
+- [ ] [SWAT: Seamless Web Authentication Technology](https://dl.acm.org/doi/10.1145/3308558.3313637)  
+  Authors: Florentin Rochet, Kyriakos Efthymiadis, FranÃ§ois Koeune, Olivier Pereira  
+  WWW '19: The World Wide Web Conference, May 2019, Pages 1579–1589. DOI: [10.1145/3308558.3313637](https://doi.org/10.1145/3308558.3313637)
+- [ ] [Device fingerprinting for augmenting web authentication: classification and analysis of methods](https://dl.acm.org/doi/10.1145/2991079.2991091)  
+  Authors: Furkan Alaca, P. C. van Oorschot  
+  ACSAC '16: Proceedings of the 32nd Annual Conference on Computer Security Applications, December 2016, Pages 289–301. DOI: [10.1145/2991079.2991091](https://doi.org/10.1145/2991079.2991091)
+- [x] [Browser Fingerprinting: A survey](https://arxiv.org/abs/1905.01051)  
+  Pierre Laperdrix, Nataliia Bielova, Benoit Baudry, Gildas Avoine  
+  Subjects: Cryptography and Security (cs.CR); Computers and Society (cs.CY); Software Engineering (cs.SE)  
+  DOI: [10.48550/arXiv.1905.01051](https://doi.org/10.48550/arXiv.1905.01051)
+
+
 
 ## Time Schedule
 
