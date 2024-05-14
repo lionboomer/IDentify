@@ -67,10 +67,10 @@ For questions or inquiries about IDentify, please contact [lion.witte@kobil.com]
 
 ## Literature Review
 
-- [ ] Machine Learning for Cybersecurity: [ACM](https://dl.acm.org/doi/abs/10.1145/3386040?casa_token=027mVneiDnwAAAAA:MnDDy8r-IfQwmX69w4iuJZQo2Ow8EG__mWksXG2W5ttQ-ycGeb3PHSP2qTlpCTNmQCxo8LyT4eU)
+- [x] Machine Learning for Cybersecurity: [ACM](https://dl.acm.org/doi/abs/10.1145/3386040?casa_token=027mVneiDnwAAAAA:MnDDy8r-IfQwmX69w4iuJZQo2Ow8EG__mWksXG2W5ttQ-ycGeb3PHSP2qTlpCTNmQCxo8LyT4eU)
 - [ ] [Web-based Fingerprinting Techniques](https://www.scitepress.org/PublishedPapers/2016/59656/59656.pdf)  
   Bernardo V. and Domingos D. (2016). In Proceedings of the 13th International Joint Conference on e-Business and Telecommunications - Volume 4: SECRYPT, (ICETE 2016) ISBN 978-989-758-196-0, pages 271-282. DOI: [10.5220/0005965602710282](https://doi.org/10.5220/0005965602710282)
-- [ ] [SWAT: Seamless Web Authentication Technology](https://dl.acm.org/doi/10.1145/3308558.3313637)  
+- [x] [SWAT: Seamless Web Authentication Technology](https://dl.acm.org/doi/10.1145/3308558.3313637)  
   Authors: Florentin Rochet, Kyriakos Efthymiadis, FranÃ§ois Koeune, Olivier Pereira  
   WWW '19: The World Wide Web Conference, May 2019, Pages 1579–1589. DOI: [10.1145/3308558.3313637](https://doi.org/10.1145/3308558.3313637)
 - [ ] [Device fingerprinting for augmenting web authentication: classification and analysis of methods](https://dl.acm.org/doi/10.1145/2991079.2991091)  
@@ -85,7 +85,7 @@ For questions or inquiries about IDentify, please contact [lion.witte@kobil.com]
 
 ## Time Schedule
 
-- [ ] Read Literature until 24th of May
+- [x] Read Literature until 24th of May
 - [ ] Complete implementation of JavaScript data collection module: by 10th of April
 - [ ] Build and train machine learning models: by 15th June
 - [ ] Develop AI-based anomaly detection system: by 30th June
