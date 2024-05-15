@@ -73,7 +73,7 @@ For questions or inquiries about IDentify, please contact [lion.witte@kobil.com]
 - [x] [SWAT: Seamless Web Authentication Technology](https://dl.acm.org/doi/10.1145/3308558.3313637)  
   Authors: Florentin Rochet, Kyriakos Efthymiadis, FranÃ§ois Koeune, Olivier Pereira  
   WWW '19: The World Wide Web Conference, May 2019, Pages 1579–1589. DOI: [10.1145/3308558.3313637](https://doi.org/10.1145/3308558.3313637)
-- [ ] [Device fingerprinting for augmenting web authentication: classification and analysis of methods](https://dl.acm.org/doi/10.1145/2991079.2991091)  
+- [x] [Device fingerprinting for augmenting web authentication: classification and analysis of methods](https://dl.acm.org/doi/10.1145/2991079.2991091)  
   Authors: Furkan Alaca, P. C. van Oorschot  
   ACSAC '16: Proceedings of the 32nd Annual Conference on Computer Security Applications, December 2016, Pages 289–301. DOI: [10.1145/2991079.2991091](https://doi.org/10.1145/2991079.2991091)
 - [x] [Browser Fingerprinting: A survey](https://arxiv.org/abs/1905.01051)  
