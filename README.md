@@ -86,6 +86,6 @@ For questions or inquiries about IDentify, please contact [lion.witte@kobil.com]
 ## Time Schedule
 
 - [x] Read Literature until 24th of May
-- [ ] Complete implementation of JavaScript data collection module: by 10th of April
+- [x] Complete implementation of JavaScript data collection module: by 10th of April
 - [ ] Build and train machine learning models: by 15th June
 - [ ] Develop AI-based anomaly detection system: by 30th June

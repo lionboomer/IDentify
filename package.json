@@ -7,8 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.19.2",
     "mysql": "^2.18.1",
+    "node-fetch": "^3.3.2",
     "puppeteer": "^22.7.0"
   },
   "author": "Lion Witte",
