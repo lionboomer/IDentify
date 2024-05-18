@@ -42,15 +42,7 @@ const generateFingerprint = async () => {
   };
 };
 
-// get the generated fingerprint
-const { fingerprint, fingerprintHash } = await generateFingerprint();
-
-const hash_h1 = document.getElementById("fingerprint-hash");
-hash_h1.textContent = `unique Id: ${fingerprintHash}`;
-
-
-
-const populateTable = () => {
+const populateTable = (fingerprint) => {
   const tableBody = document.getElementById("fingerprint-table");
 
   for (const prop in fingerprint) {
@@ -77,8 +69,46 @@ const populateTable = () => {
   }
 };
 
-// Call the function to populate the table
-populateTable();
+async function sendFingerprint() {
+  // get the generated fingerprint
+  const { fingerprint, fingerprintHash } = await generateFingerprint();
 
+  if (!fingerprint || !fingerprintHash) {
+    throw new Error('Fingerprint or fingerprintHash is null');
+  }
 
+  // Send the fingerprint to the server
+  fetch("/fingerprint", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fingerprint, fingerprintHash}), // Add username here
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      if (data.message === "Fingerprint recognized") {
+        alert(
+          `Fingerprint recognized. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`
+        ); // Add username here
+      } else {
+        alert(
+          `Fingerprint saved. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`
+        ); // Add username here
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 
+  // Now you can use fingerprintHash
+  const hash_h1 = document.getElementById("fingerprint-hash");
+  hash_h1.textContent = `unique Id: ${fingerprintHash}`;	
+
+  // Call the function to populate the table
+  populateTable(fingerprint);
+}
+
+// Call the function that generates the fingerprint hash and send the fingerprint
+sendFingerprint();

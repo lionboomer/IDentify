@@ -2,16 +2,37 @@
   "name": "identify",
   "version": "1.0.0",
   "description": "Welcome to IDentify, a project aimed at enhancing web application security through innovative machine learning-powered device fingerprinting techniques.",
-  "main": "app.js",
+  "main": "./src/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node ./src/app.js",
+    "build": "parcel build ./src/public/index.html"
   },
   "dependencies": {
+    "assert": "^2.1.0",
+    "browserify-fs": "^1.0.0",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
     "express": "^4.19.2",
+    "mongoose": "^8.4.0",
     "mysql": "^2.18.1",
+    "net-browserify": "^0.2.4",
     "node-fetch": "^3.3.2",
-    "puppeteer": "^22.7.0"
+    "path-browserify": "^1.0.1",
+    "querystring-es3": "^0.2.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.3",
+    "util": "^0.12.5",
+    "vm-browserify": "^1.1.2"
   },
   "author": "Lion Witte",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "babel-loader": "^9.1.3",
+    "parcel-bundler": "^1.12.5"
+  }
 }

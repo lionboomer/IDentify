@@ -1,0 +1,40 @@
+const path = require('path');
+
+module.exports = {
+  entry: './src/public/index.js',
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
+      }
+    ]
+  },
+  resolve: {
+    extensions: ['.js','.json'],
+    modules: ['node_modules'],
+    fallback: {
+      "axios": require.resolve("axios/dist/axios..js"),
+      "stream": require.resolve("stream-browserify"),
+      "util": require.resolve("util/"),
+      "path": require.resolve("path-browserify"),
+      "url": require.resolve("url/"),
+      "http": require.resolve("stream-http"),
+      "net": require.resolve("net-browserify"),
+      "querystring": require.resolve("querystring-es3"),
+      "fs": require.resolve("browserify-fs"),
+      "zlib": require.resolve("browserify-zlib"),
+      "crypto": require.resolve("crypto-browserify"),
+      "assert": require.resolve("assert/"),
+      "vm": require.resolve("vm-browserify"),
+      "async_hooks": false // if you don't want to include a polyfill
+    }
+  },
+  mode: 'development'
+};
