@@ -1,149 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KOBIL</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Add a new progress bar for local progress -->
     <header class="header">
-        <h1>Welcome to KOBIL</h1>
-        <p>Identity and Beyond: Discover the KOBIL SuperApp Platform</p>
-        <nav>
-            <ul class="nav-list">
-                <li><a href="#products">Products</a></li>
-                <li><a href="#case-studies">Case Studies</a></li>
-                <li><a href="#partners">Partners</a></li>
-                <li><a href="#industries">Industries</a></li>
-                <li><a href="#resources">Docs & Resources</a></li>
-                <li><a href="#company">Company</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
+      <h1>Welcome to KOBIL</h1>
+      <p>Identity and Beyond: Discover the KOBIL SuperApp Platform</p>
+      <nav>
+        <ul class="nav-list">
+          <li><a href="#products">Products</a></li>
+          <li><a href="#case-studies">Case Studies</a></li>
+          <li><a href="#partners">Partners</a></li>
+          <li><a href="#industries">Industries</a></li>
+          <li><a href="#resources">Docs & Resources</a></li>
+          <li><a href="#company">Company</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
     </header>
+    <body>
+      <!-- Add a new progress bar for local progress -->
+      <div class="progress-container">
+        <span id="local-progress-label">Local Progress:</span>
+        <progress id="local-progress" max="100" value="0"></progress>
+        <span id="local-progress-percent">0%</span>
+      </div>
+
+      <!-- Add a new progress bar for server progress -->
+      <div class="progress-container">
+        <span id="server-progress-label">Server Progress:</span>
+        <progress id="server-progress" max="100" value="0"></progress>
+        <span id="server-progress-percent">0%</span>
+      </div>
+    </body>
     <details>
-        <summary>Fingerprint Data</summary>
-        <div id="root">
-            <h3 id="fingerprint-hash" style="color: blue"></h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Property</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody id="fingerprint-table">
-                    <!-- Table data will be dynamically generated here -->
-                </tbody>
-            </table>
-        </div>
+      <summary>Fingerprint Data</summary>
+      <div id="root">
+        <h3 id="fingerprint-hash" style="color: blue"></h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody id="fingerprint-table">
+            <!-- Table data will be dynamically generated here -->
+          </tbody>
+        </table>
+      </div>
     </details>
     <script type="module" src="index.js"></script>
     <main>
-        <section id="superapp">
-            <h2>Discover SuperApp Solutions</h2>
-            <p>Explore Identity Solutions</p>
-        </section>
-        <section id="identity">
-            <h2>KOBIL Identity</h2>
-            <p>Secure foundation for managing user identities and building trust.</p>
-            <div class="features">
-                <div class="feature">
-                    <h3>Security</h3>
-                    <p>Protect every interaction and process.</p>
-                </div>
-                <div class="feature">
-                    <h3>Compliance</h3>
-                    <p>Ensure global compliance and non-repudiation.</p>
-                </div>
-                <div class="feature">
-                    <h3>Management</h3>
-                    <p>Maintain full control over access levels and consent management.</p>
-                </div>
-            </div>
-        </section>
-        <section id="chat">
-            <h2>KOBIL Chat</h2>
-            <p>Engage customers through secure and immediate interactions.</p>
-            <div class="features">
-                <div class="feature">
-                    <h3>Security</h3>
-                    <p>End-to-end encryption ensuring private communications.</p>
-                </div>
-                <div class="feature">
-                    <h3>Non Repudiation</h3>
-                    <p>Secure signing process based on Digital Identity Bound Processing Technology.</p>
-                </div>
-                <div class="feature">
-                    <h3>Collaboration</h3>
-                    <p>Connect employees, customers, and partners through a flexible platform.</p>
-                </div>
-            </div>
-        </section>
-        <section id="paygate">
-            <h2>KOBIL Paygate</h2>
-            <p>Elevate your transactions with secure identity-bound solutions.</p>
-            <div class="features">
-                <div class="feature">
-                    <h3>Security</h3>
-                    <p>Complies with PSD2 requirements ensuring transaction security.</p>
-                </div>
-                <div class="feature">
-                    <h3>Frictionless</h3>
-                    <p>Fast and easy payments with just one click.</p>
-                </div>
-                <div class="feature">
-                    <h3>Integrity</h3>
-                    <p>Manage all payment methods and loyalty cards in one place.</p>
-                </div>
-            </div>
-        </section>
-        <section id="superapp-platform">
-            <h2>KOBIL SuperApp Platform</h2>
-            <p>Deploy low-code Super App with seamless integration and ready APIs.</p>
-            <div class="features">
-                <div class="feature">
-                    <h3>Convenience</h3>
-                    <p>Integrate your existing system into the platform easily.</p>
-                </div>
-                <div class="feature">
-                    <h3>Synergy</h3>
-                    <p>Leverage built-in features and functionalities effortlessly.</p>
-                </div>
-                <div class="feature">
-                    <h3>Agility</h3>
-                    <p>Integrate numerous ready integrations with no coding needed.</p>
-                </div>
-            </div>
-        </section>
-        <section id="case-studies">
-            <h2>Case Studies</h2>
-            <div class="case-study">
-                <h3>Raiffeisen Bank</h3>
-                <p>Securing Raiffeisen Bank International’s Austrian Strength with World-Class Technology</p>
-                <a href="#">Read More</a>
-            </div>
-            <div class="case-study">
-                <h3>MIGROSBANK</h3>
-                <p>How KOBIL Secured 100m Banking Transactions for Migros Bank</p>
-                <a href="#">Read More</a>
-            </div>
-            <div class="case-study">
-                <h3>Istanbul SuperApp</h3>
-                <p>Istanbul Metropolitan Municipality empowered by KOBIL Secure Super App Technology</p>
-                <a href="#">Read More</a>
-            </div>
-            <div class="case-study">
-                <h3>DATEV</h3>
-                <p>How KOBIL built a single universal solution for DATEV</p>
-                <a href="#">Read More</a>
-            </div>
-        </section>
+      <section id="superapp">
+        <h2>Discover SuperApp Solutions</h2>
+        <p>Explore Identity Solutions</p>
+      </section>
+      <section id="identity">
+        <h2>KOBIL Identity</h2>
+        <p>
+          Secure foundation for managing user identities and building trust.
+        </p>
+        <div class="features">
+          <div class="feature">
+            <h3>Security</h3>
+            <p>Protect every interaction and process.</p>
+          </div>
+          <div class="feature">
+            <h3>Compliance</h3>
+            <p>Ensure global compliance and non-repudiation.</p>
+          </div>
+          <div class="feature">
+            <h3>Management</h3>
+            <p>
+              Maintain full control over access levels and consent management.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section id="chat">
+        <h2>KOBIL Chat</h2>
+        <p>Engage customers through secure and immediate interactions.</p>
+        <div class="features">
+          <div class="feature">
+            <h3>Security</h3>
+            <p>End-to-end encryption ensuring private communications.</p>
+          </div>
+          <div class="feature">
+            <h3>Non Repudiation</h3>
+            <p>
+              Secure signing process based on Digital Identity Bound Processing
+              Technology.
+            </p>
+          </div>
+          <div class="feature">
+            <h3>Collaboration</h3>
+            <p>
+              Connect employees, customers, and partners through a flexible
+              platform.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section id="paygate">
+        <h2>KOBIL Paygate</h2>
+        <p>Elevate your transactions with secure identity-bound solutions.</p>
+        <div class="features">
+          <div class="feature">
+            <h3>Security</h3>
+            <p>
+              Complies with PSD2 requirements ensuring transaction security.
+            </p>
+          </div>
+          <div class="feature">
+            <h3>Frictionless</h3>
+            <p>Fast and easy payments with just one click.</p>
+          </div>
+          <div class="feature">
+            <h3>Integrity</h3>
+            <p>Manage all payment methods and loyalty cards in one place.</p>
+          </div>
+        </div>
+      </section>
+      <section id="superapp-platform">
+        <h2>KOBIL SuperApp Platform</h2>
+        <p>
+          Deploy low-code Super App with seamless integration and ready APIs.
+        </p>
+        <div class="features">
+          <div class="feature">
+            <h3>Convenience</h3>
+            <p>Integrate your existing system into the platform easily.</p>
+          </div>
+          <div class="feature">
+            <h3>Synergy</h3>
+            <p>Leverage built-in features and functionalities effortlessly.</p>
+          </div>
+          <div class="feature">
+            <h3>Agility</h3>
+            <p>Integrate numerous ready integrations with no coding needed.</p>
+          </div>
+        </div>
+      </section>
+      <section id="case-studies">
+        <h2>Case Studies</h2>
+        <div class="case-study">
+          <h3>Raiffeisen Bank</h3>
+          <p>
+            Securing Raiffeisen Bank International’s Austrian Strength with
+            World-Class Technology
+          </p>
+          <a href="#">Read More</a>
+        </div>
+        <div class="case-study">
+          <h3>MIGROSBANK</h3>
+          <p>How KOBIL Secured 100m Banking Transactions for Migros Bank</p>
+          <a href="#">Read More</a>
+        </div>
+        <div class="case-study">
+          <h3>Istanbul SuperApp</h3>
+          <p>
+            Istanbul Metropolitan Municipality empowered by KOBIL Secure Super
+            App Technology
+          </p>
+          <a href="#">Read More</a>
+        </div>
+        <div class="case-study">
+          <h3>DATEV</h3>
+          <p>How KOBIL built a single universal solution for DATEV</p>
+          <a href="#">Read More</a>
+        </div>
+      </section>
     </main>
     <footer>
-        <p>&copy; 2024 KOBIL. All rights reserved.</p>
+      <p>&copy; 2024 KOBIL. All rights reserved.</p>
     </footer>
     <script type="module" src="index.js"></script>
-</body>
+  </body>
 </html>
