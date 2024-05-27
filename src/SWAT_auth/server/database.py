@@ -4,20 +4,27 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 
-# MongoDB Verbindung
+# Verbindung zur MongoDB herstellen
 client = pymongo.MongoClient("mongodb://localhost:27017/")
-db = client['fingerprintDB']
-collection = db['fingerprints']
+db = client["fingerprintDB"]
+collection = db["fingerprints"]
 
-# Funktion zur Extraktion und Verarbeitung der Canvas-Daten
-def get_canvas_data(user_id):
-    user_data = collection.find_one({"_id": pymongo.ObjectId(user_id)})
-    canvases = user_data['canvases']
-    images = []
-    for canvas in canvases:
-        img_data = base64.b64decode(canvas.split(",")[1])
-        img = Image.open(BytesIO(img_data))
-        img = img.resize((280, 35))  # Bildgröße anpassen
-        img_array = np.array(img)
-        images.append(img_array)
-    return np.array(images)
+# Daten abrufen
+data = collection.find()
+
+# Canvas-Bilder dekodieren und in numpy Arrays umwandeln
+def decode_canvas(canvas_data):
+    image_data = base64.b64decode(canvas_data.split(",")[1])
+    image = Image.open(BytesIO(image_data))
+    return np.array(image)
+
+# Alle Canvas-Bilder dekodieren
+canvases = []
+labels = []
+for record in data:
+    for canvas in record["canvases"]:
+        canvases.append(decode_canvas(canvas))
+        labels.append(record["username"])
+
+canvases = np.array(canvases)
+labels = np.array(labels)
