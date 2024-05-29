@@ -135,6 +135,16 @@ function sendFingerprintToServer(fingerprint) {
 }
 // Generate multiple canvas elements and draw random texts
 
+async function hashFingerprint(fingerprint) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(fingerprint);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
+
 // Function to generate a random canvas with text
 function generateRandomCanvas(txt) {
   var canvas = document.createElement("canvas");
@@ -184,6 +194,7 @@ async function generateCanvasFingerprints(fingerprintsToGenerate) {
 
     // Send the fingerprint to the server
     console.log(`Sending fingerprint ${i + 1} to the server`);
+    //const fingerprintHash = await hashFingerprint(fingerprint);
     await sendFingerprints(fingerprint);
     console.log(`Sent fingerprint ${i + 1} to the server`);
   }

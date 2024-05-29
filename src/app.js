@@ -99,7 +99,7 @@ app.get("/progress", async (req, res) => {
 
   // If a fingerprint was found for the hash
   if (fingerprint) {
-    // The count of created canvas fingerprints is the length of the canvases array
+    // The count of created canvas fingerprints is the length of the canvases  array
     const count = fingerprint.canvases.length;
     const progress = count >= 20 ? 100 : (count / 20) * 100;
 
@@ -109,14 +109,24 @@ app.get("/progress", async (req, res) => {
     res.status(404).json({ error: "Fingerprint not found" });
   }
 });
-
 app.post("/fingerprint", async (req, res) => {
   const { fingerprint, fingerprintHash } = req.body;
+
+  console.log(`Received fingerprint: ${fingerprint}`);
+  console.log(`Received fingerprintHash: ${fingerprintHash}`);
+
+  // Check if both the fingerprint and fingerprintHash are defined
+  if (!fingerprint || !fingerprintHash) {
+    console.log("Missing fingerprint or fingerprintHash in request body");
+    return res.status(400).send("Missing fingerprint or fingerprintHash");
+  }
 
   // Check if the fingerprint already exists in the database
   const existingFingerprint = await Fingerprint.findOne({ fingerprintHash });
 
   if (existingFingerprint) {
+    console.log("Fingerprint already exists in the database");
+
     // If the fingerprint exists, return the ID and the name
     res.json({
       message: "Fingerprint recognized",
@@ -125,6 +135,8 @@ app.post("/fingerprint", async (req, res) => {
       username: existingFingerprint.username,
     });
   } else {
+    console.log("Fingerprint does not exist in the database, creating a new one");
+
     // If the fingerprint does not exist, save it to the database
     const count = await Fingerprint.countDocuments();
     const name = `User ${count + 1}`;
@@ -138,6 +150,8 @@ app.post("/fingerprint", async (req, res) => {
     });
 
     await newFingerprint.save();
+
+    console.log("New fingerprint saved successfully");
 
     res.json({
       message: "Fingerprint saved successfully",
