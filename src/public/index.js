@@ -4,7 +4,7 @@ import * as webglFp from "./webgl.js";
 
 let GlobalfingerprintHash;
 let localProgress = 0; // Variable zur Speicherung des lokalen Fortschritts
-// Nun können Sie auf `globalFingerprintHash` von überall in Ihrem Code zugreifen
+
 const hashFuntion = async (fingerprint) => {
   const hash = await crypto.subtle.digest(
     "SHA-256",
@@ -92,10 +92,12 @@ async function sendFingerprint() {
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
-      if (data.message === "Fingerprint recognized") {
+      if (data.message === "Fingerprint recognized. Please complete the challenge.") {
         alert(
-          `Fingerprint recognized. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`
+          `Fingerprint recognized. Please complete the challenge. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`
         ); // Add username here
+        // Call the function to handle the challenge
+        handleChallenge();
       } else {
         alert(
           `Fingerprint saved. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`
@@ -133,15 +135,29 @@ function sendFingerprintToServer(fingerprint) {
       console.error(error);
     });
 }
-// Generate multiple canvas elements and draw random texts
 
-async function hashFingerprint(fingerprint) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(fingerprint);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+// Function to handle the challenge
+async function handleChallenge() {
+  const newFingerprint = canvasFp.generateCanvasFingerprint();
+  const response = await fetch("/verify-challenge", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fingerprint: newFingerprint, fingerprintHash: GlobalfingerprintHash }),
+  });
+
+  const data = await response.json();
+  const verificationStatus = document.getElementById("verification-status");
+  if (data.verified) {
+    alert("Challenge passed. User verified.");
+    verificationStatus.textContent = `User verified. Confidence: ${data.result}`;
+    verificationStatus.style.color = "green";
+  } else {
+    alert("Challenge failed. User not verified.");
+    verificationStatus.textContent = `User not verified. Confidence: ${data.result}`;
+    verificationStatus.style.color = "red";
+  }
 }
 
 
@@ -230,7 +246,7 @@ async function generateRequiredCanvasFingerprints(fingerprintHash) {
   const existingFingerprintsCount = data.count;
   console.log(`Existing fingerprints count: ${existingFingerprintsCount}`);
 
-  const fingerprintsToGenerate = 20 - existingFingerprintsCount;
+  const fingerprintsToGenerate = 1900 - existingFingerprintsCount;
   console.log(`Fingerprints to generate: ${fingerprintsToGenerate}`);
 
   const fingerprints = await generateCanvasFingerprints(fingerprintsToGenerate);
@@ -305,6 +321,36 @@ async function getFingerprintCount(fingerprintHash) {
   }
 }
 
+async function predictFingerprint(fingerprint) {
+  const response = await fetch("/predict", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fingerprint }),
+  });
+
+  const data = await response.json();
+  console.log("Prediction:", data.prediction);
+  return data.prediction;
+}
+
+// Beispiel für die Verwendung der Vorhersagefunktion
+async function exampleUsage() {
+  const { fingerprint } = await generateFingerprint();
+  const prediction = await predictFingerprint(fingerprint);
+  console.log("Prediction result:", prediction);
+
+  const resultElement = document.getElementById("prediction-result");
+  if (prediction > 0.5) {
+    resultElement.textContent = "User recognized!";
+    resultElement.style.color = "green";
+  } else {
+    resultElement.textContent = "User not recognized!";
+    resultElement.style.color = "red";
+  }
+}
+
 async function updateServerProgressBar() {
   const response = await fetch(`/progress?fingerprintHash=${encodeURIComponent(GlobalfingerprintHash)}`);
   const { progress: serverProgress } = await response.json();
@@ -333,3 +379,4 @@ async function runFunctionsSequentially() {
 }
 
 runFunctionsSequentially();
+exampleUsage();

@@ -1,6 +1,7 @@
 {
   "name": "identify",
   "version": "1.0.0",
+  "type": "commonjs",
   "description": "Welcome to IDentify, a project aimed at enhancing web application security through innovative machine learning-powered device fingerprinting techniques.",
   "main": "./src/app.js",
   "scripts": {
@@ -9,7 +10,11 @@
     "build": "parcel build ./src/public/index.html"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^4.20.0",
+    "@tensorflow/tfjs-node": "^4.20.0",
     "assert": "^2.1.0",
+    "axios": "^1.7.2",
+    "brain.js": "^2.0.0-beta.23",
     "browserify-fs": "^1.0.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
