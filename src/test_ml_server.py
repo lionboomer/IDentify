@@ -26,7 +26,9 @@ canvas_image = generate_random_canvas(example_string)
 
 # Sende die Anfrage an das Backend
 url = 'http://127.0.0.1:5000/predict'
-response = requests.post(url, json={'fingerprint': canvas_image})
+fingerprint_hash = "1e19ea18d40fa0216127e9a8aebd7c312a4739e80d34a1b6a3dc096fd034ce55"  # Beispiel-Hash
+username = "username_1"  # Beispiel-Username
+response = requests.post(url, json={'fingerprint': canvas_image, 'fingerprintHash': fingerprint_hash, 'username': username})
 
 # Antwort anzeigen
 print(response.json())

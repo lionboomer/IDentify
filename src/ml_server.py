@@ -2,11 +2,14 @@ from flask import Flask, request, jsonify
 import tensorflow as tf
 import numpy as np
 import base64
+from PIL import Image
+from io import BytesIO
 import logging
 from logging.config import dictConfig
 from tensorflow.keras.utils import img_to_array
-from PIL import Image
-from io import BytesIO
+import os
+
+app = Flask(__name__)
 
 # Konfigurieren Sie das Logging
 dictConfig({
@@ -25,33 +28,19 @@ dictConfig({
     }
 })
 
-app = Flask(__name__)
-
-# Laden Sie das Modell
-try:
-    model = tf.keras.models.load_model('SWAT_auth/models/username_1_fingerprint_model.h5')
-    app.logger.info("Model loaded successfully.")
-except Exception as e:
-    app.logger.error(f"Error loading model: {e}")
-    raise
-
-# Funktion zum Dekodieren von Base64-Bildern
-def decode_base64_image(base64_string):
-    byte_data = base64.b64decode(base64_string)
-    image_data = BytesIO(byte_data)
-    image = Image.open(image_data)
-    return np.array(image)
-
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         data = request.get_json()
-        app.logger.debug(f"Received data: {data}")
+        app.logger.debug(f"Received data: {{'username': {data.get('username')}, 'fingerprint': {data.get('fingerprint')}}}")
         fingerprint = data.get('fingerprint')
+        username = data.get('username')
 
-        if not fingerprint:
-            app.logger.error("Missing fingerprint in request.")
-            return jsonify({'error': 'Missing fingerprint'}), 400
+        if not fingerprint or not username:
+            app.logger.error("Missing fingerprint or username in request.")
+            return jsonify({'error': 'Missing fingerprint or username'}), 400
+
+        app.logger.info(f"Processing prediction for username: {username}")
 
         if isinstance(fingerprint, str):
             # Remove the data URI prefix to extract raw base64 data
@@ -71,6 +60,15 @@ def predict():
         # Convert to float32
         input_data = tf.convert_to_tensor(input_data, dtype=tf.float32)
 
+        # Debugging: Aktuelles Arbeitsverzeichnis ausgeben
+        current_directory = os.getcwd()
+        app.logger.debug(f"Current working directory: {current_directory}")
+
+        # Modell laden
+        model_path = f'SWAT_auth/models/{username}_fingerprint_model.h5'
+        app.logger.debug(f"Loading model from path: {model_path}")
+        model = tf.keras.models.load_model(model_path, compile=False)
+
         # Vorhersage treffen
         app.logger.debug("Making prediction...")
         prediction = model.predict(input_data)
@@ -81,17 +79,6 @@ def predict():
     except Exception as e:
         app.logger.error(f"Unexpected error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
-
-# Fehlerbehandlung für 404 und 500 Fehler
-@app.errorhandler(404)
-def not_found_error(error):
-    app.logger.error(f"404 error: {error}")
-    return jsonify({'error': 'Not found'}), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    app.logger.error(f"500 error: {error}")
-    return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

@@ -7,7 +7,14 @@ const app = express();
 const http = require("http");
 const os = require("os");
 const bodyParser = require("body-parser");
-const axios = require('axios');
+const axios = require("axios");
+const { exit } = require("process");
+const { exec } = require("child_process");
+
+async function doesModelExist(username) {
+  const modelPath = `src/SWAT_auth/models/${username}_fingerprint_model.h5`;
+  return fs.existsSync(modelPath);
+}
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
@@ -22,7 +29,7 @@ let progress = 0;
 mongoose.connect("mongodb://127.0.0.1:27017/fingerprintDB", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000 // Erhöhen Sie das Timeout auf 5000ms
+  serverSelectionTimeoutMS: 5000, // Erhöhen Sie das Timeout auf 5000ms
 });
 
 const FingerprintSchema = new mongoose.Schema({
@@ -43,23 +50,19 @@ app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
 
-// API-Endpunkt für Vorhersagen
-app.post("/predict", async (req, res) => {
-  const { fingerprint } = req.body;
-
-  if (!fingerprint) {
-    return res.status(400).send("Missing fingerprint");
-  }
-
+// Funktion zum Abrufen des Benutzernamens basierend auf dem Fingerprint-Hash
+async function getUsernameByFingerprintHash(fingerprintHash) {
   try {
-    const response = await axios.post('http://127.0.0.1:5000/predict', { fingerprint });
-    const result = response.data.prediction;
-    res.json({ prediction: result });
+    const fingerprintRecord = await Fingerprint.findOne({ fingerprintHash });
+    if (!fingerprintRecord) {
+      throw new Error("Fingerprint not found");
+    }
+    return fingerprintRecord.username;
   } catch (error) {
-    console.error('Error calling Python API:', error);
-    res.status(500).send('Error calling Python API');
+    console.error("Error fetching username:", error);
+    throw error;
   }
-});
+}
 
 app.post("/fingerprints", async (req, res) => {
   const { fingerprintHash, fingerprint } = req.body;
@@ -141,7 +144,9 @@ app.post("/fingerprint", async (req, res) => {
       username: existingFingerprint.username,
     });
   } else {
-    console.log("Fingerprint does not exist in the database, creating a new one");
+    console.log(
+      "Fingerprint does not exist in the database, creating a new one"
+    );
 
     const count = await Fingerprint.countDocuments();
     let name = `User ${count + 1}`;
@@ -173,8 +178,80 @@ app.post("/fingerprint", async (req, res) => {
     });
   }
 });
+async function areAllFingerprintsCollected(fingerprintHash) {
+  const fingerprintRecord = await Fingerprint.findOne({ fingerprintHash });
+  if (!fingerprintRecord) {
+    throw new Error("Fingerprint not found");
+  }
+  return fingerprintRecord.canvases.length >= 1900;
+}
 
-app.post("/verify-challenge", async (req, res) => {
+// Funktion zum Ausführen des Python-Skripts
+async function runPythonScript(username) {
+  return new Promise((resolve, reject) => {
+    const command = `python src/SWAT_auth/train_model.py ${username}`;
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing Python script: ${error.message}`);
+        return reject(error);
+      }
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+        return reject(new Error(stderr));
+      }
+      console.log(`stdout: ${stdout}`);
+      resolve(stdout);
+    });
+  });
+}
+
+// API-Endpunkt für Vorhersagen
+app.post("/predict", async (req, res, next) => {
+  const { fingerprint, fingerprintHash } = req.body;
+
+  if (!fingerprint || !fingerprintHash) {
+    return res.status(400).send("Missing fingerprint or fingerprintHash");
+  }
+
+  try {
+    // Ermitteln des Benutzernamens anhand des Fingerprint-Hashes
+    const username = await getUsernameByFingerprintHash(fingerprintHash);
+
+    if (!username) {
+      console.log("No username found for fingerprint");
+      return res.status(404).send("No username found for fingerprint");
+    }
+
+    console.log(`Username: ${username}`);
+
+    // Überprüfen, ob alle Fingerprints gesammelt wurden
+    const allFingerprintsCollected = await areAllFingerprintsCollected(fingerprintHash);
+    if (!allFingerprintsCollected) {
+      return res.status(400).send("Not all fingerprints collected");
+    }
+
+    // Überprüfen, ob das Modell bereits existiert
+    const modelExists = await doesModelExist(username);
+    let scriptOutput = '';
+    if (!modelExists) {
+      // Automatisches Ausführen des Python-Skripts zur Modellerstellung und -training
+      scriptOutput = await runPythonScript(username);
+      console.log(`Script output: ${scriptOutput}`);
+    }
+
+    // Senden des Fingerprints und des Benutzernamens an das Python-Backend
+    console.log(`Sending data to Python API: { fingerprint: ${fingerprint}, username: ${username} }`);
+    const response = await axios.post('http://127.0.0.1:5000/predict', { fingerprint, username });
+    const result = response.data.prediction;
+    console.log("Received prediction from Python API:", result);
+    res.json({ prediction: result, scriptOutput });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// API-Endpunkt für Challenge-Verifizierung
+app.post("/verify-challenge", async (req, res, next) => {
   const { fingerprint, fingerprintHash } = req.body;
 
   if (!fingerprint || !fingerprintHash) {
@@ -188,7 +265,25 @@ app.post("/verify-challenge", async (req, res) => {
   }
 
   try {
-    const response = await axios.post('http://127.0.0.1:5000/predict', { fingerprint });
+    const username = existingFingerprint.username;
+    console.log(`Username: ${username}`);
+
+    // Überprüfen, ob alle Fingerprints gesammelt wurden
+    const allFingerprintsCollected = await areAllFingerprintsCollected(fingerprintHash);
+    if (!allFingerprintsCollected) {
+      return res.status(400).send("Not all fingerprints collected");
+    }
+
+    // Überprüfen, ob das Modell bereits existiert
+    const modelExists = await doesModelExist(username);
+    let scriptOutput = '';
+    if (!modelExists) {
+      // Automatisches Ausführen des Python-Skripts zur Modellerstellung und -training
+      scriptOutput = await runPythonScript(username);
+      console.log(`Script output: ${scriptOutput}`);
+    }
+
+    const response = await axios.post('http://127.0.0.1:5000/predict', { fingerprint, username });
     const result = response.data.prediction;
 
     // Berechne das Ergebnis in Prozent
@@ -198,24 +293,36 @@ app.post("/verify-challenge", async (req, res) => {
       res.json({ 
         message: "Challenge passed. User verified.", 
         verified: true, 
-        result: `${resultPercentage}%` 
+        result: `${resultPercentage}%`,
+        scriptOutput
       });
     } else {
       res.json({ 
         message: "Challenge failed. User not verified.", 
         verified: false, 
-        result: `${resultPercentage}%` 
+        result: `${resultPercentage}%`,
+        scriptOutput
       });
     }
   } catch (error) {
-    console.error('Error calling Python API:', error);
-    res.status(500).send('Error calling Python API');
+    next(error);
   }
+});
+
+// Globale Fehlerbehandlungsmiddleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({
+    message: err.message,
+    stack: err.stack
+  });
 });
 
 app.get("/fingerprintCount/:fingerprinthash", async (req, res) => {
   const fingerprinthash = req.params.fingerprinthash;
-  console.log(`Received request for fingerprint count of hash: ${fingerprinthash}`);
+  console.log(
+    `Received request for fingerprint count of hash: ${fingerprinthash}`
+  );
 
   const fingerprint = await Fingerprint.findOne({
     fingerprintHash: fingerprinthash,
@@ -225,7 +332,9 @@ app.get("/fingerprintCount/:fingerprinthash", async (req, res) => {
 
   if (fingerprint) {
     const createdCanvasCount = fingerprint.canvases.length;
-    console.log(`Count of created canvas fingerprints for hash ${fingerprinthash}: ${createdCanvasCount}`);
+    console.log(
+      `Count of created canvas fingerprints for hash ${fingerprinthash}: ${createdCanvasCount}`
+    );
     res.json({ count: createdCanvasCount });
   } else {
     console.log(`No fingerprint found for hash ${fingerprinthash}`);
@@ -257,3 +366,21 @@ http.createServer(app).listen(80, () => {
 https.createServer(credentials, app).listen(443, () => {
   console.log(`HTTPS Server is accessible on https://${serverIP}:443`);
 });
+
+async function runJupyterNotebook(username) {
+  return new Promise((resolve, reject) => {
+    const command = `jupyter nbconvert --to notebook --execute --inplace src/SWAT_auth/Model.ipynb --ExecutePreprocessor.timeout=None --ExecutePreprocessor.kernel_name=python3`;
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing Jupyter Notebook: ${error.message}`);
+        return reject(error);
+      }
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+        return reject(new Error(stderr));
+      }
+      console.log(`stdout: ${stdout}`);
+      resolve(stdout);
+    });
+  });
+}
