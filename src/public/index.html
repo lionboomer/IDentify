@@ -27,48 +27,55 @@
       </nav>
       <div id="verification-status" class="verification-status"></div>
       <div id="model-status" class="model-status"></div>
+
     </header>
     <body>
-      
       <main>
-        <!-- Circular progress bar -->
-        <div class="circular-progress-container">
-            <div class="circular-progress" id="circular-progress">
-                <span id="circular-progress-text">0%</span>
+            <!-- Circular progress bar -->
+            <div class="circular-progress-container">
+                <div class="circular-progress" id="circular-progress">
+                    <span id="circular-progress-text">0%</span>
+                </div>
             </div>
-        </div>
+            <!-- Terminal-like window for live logs -->
+            <div class="terminal-container">
+                <details class="terminal-details">
+                    <summary class="summary-training">Training Logs</summary>
+                    <div class="terminal-window">
+                        <pre id="terminal-output"></pre>
+                    </div>
+                </details>
+            </div>
+            <!-- Add a new progress bar for local progress -->
+            <div class="progress-container">
+                <span id="local-progress-label">Local Progress:</span>
+                <progress id="local-progress" max="100" value="0"></progress>
+                <span id="local-progress-percent">0%</span>
+            </div>
+            <!-- Add a new progress bar for server progress -->
+            <div class="progress-container">
+                <span id="server-progress-label">Server Progress:</span>
+                <progress id="server-progress" max="100" value="0"></progress>
+                <span id="server-progress-percent">0%</span>
+            </div>
     </main>
-    <div id="prediction-result" class="prediction-result"></div>
-      <!-- Add a new progress bar for local progress -->
-      <div class="progress-container">
-        <span id="local-progress-label">Local Progress:</span>
-        <progress id="local-progress" max="100" value="0"></progress>
-        <span id="local-progress-percent">0%</span>
-      </div>
-
-      <!-- Add a new progress bar for server progress -->
-      <div class="progress-container">
-        <span id="server-progress-label">Server Progress:</span>
-        <progress id="server-progress" max="100" value="0"></progress>
-        <span id="server-progress-percent">0%</span>
-      </div>
-    <details>
-      <summary>Fingerprint Data</summary>
-      <div id="root">
-        <h3 id="fingerprint-hash" style="color: blue"></h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Property</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody id="fingerprint-table">
-            <!-- Table data will be dynamically generated here -->
-          </tbody>
-        </table>
-      </div>
-    </details>
+      <details>
+        <summary>Fingerprint Data</summary>
+        <div id="root">
+          <h3 id="fingerprint-hash" style="color: blue"></h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="fingerprint-table">
+              <!-- Table data will be dynamically generated here -->
+            </tbody>
+          </table>
+        </div>
+      </details>
     <script type="module" src="index.js"></script>
     <main>
       <section id="superapp">

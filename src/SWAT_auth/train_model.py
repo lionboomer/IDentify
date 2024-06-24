@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit
 import pymongo
 from pymongo import MongoClient
 import base64
@@ -13,9 +14,13 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 import os
 import sys
 import threading
+import logging
+import eventlet
 
+# Flask-Anwendung konfigurieren
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)  # CORS für alle Routen aktivieren
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Verbindung zu MongoDB herstellen
 client = MongoClient("mongodb://localhost:27017/")
@@ -48,7 +53,12 @@ def create_cnn_model(input_shape):
 
 # Benutzername aus den Argumenten abrufen
 username = sys.argv[1]
-model_path = f'models/{username}_fingerprint_model.h5'
+
+#Modellpfad anpassn je nach dem wo das skript ausgeführt wird wenn am ende des pwd ein src steht muss der fpad angepasst werden 
+if 'src' in os.getcwd():
+    model_path = f'src/models/{username}_fingerprint_model.h5'
+else:
+    model_path = f'models/{username}_fingerprint_model.h5'
 
 # Überprüfen, ob das Modell bereits existiert
 if os.path.exists(model_path):
@@ -101,21 +111,65 @@ model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy']
 training_progress = 0
 total_epochs = 10
 
+# Logging konfigurieren
+logging.basicConfig(filename='training.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+
 # Callback-Klasse für den Trainingsfortschritt
 class TrainingProgressCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         global training_progress
         training_progress = (epoch + 1) / total_epochs * 100
-        print(f"Epoch {epoch + 1}/{total_epochs} - Progress: {training_progress:.2f}%")
+        message = f"Epoch {epoch + 1}/{total_epochs} - Progress: {training_progress:.2f}%"
+        logging.info(message)
+        print(message)
+        socketio.emit('progress', {'progress': training_progress, 'message': message})
+
+    def on_batch_end(self, batch, logs=None):
+        global training_progress
+        progress_increment = 1 / (total_epochs * len(X_train) / 32) * 100
+        training_progress += progress_increment
+        message = f"Batch {batch} - Progress: {training_progress:.2f}%"
+        logging.info(message)
+        print(message)
+        socketio.emit('progress', {'progress': training_progress, 'message': message})
 
 # Trainingsfunktion
 def train_model():
     model.fit(X_train, y_train, epochs=total_epochs, batch_size=32, validation_data=(X_test, y_test), callbacks=[TrainingProgressCallback()])
     try:
         model.save(model_path)
-        print(f"Model for {username} saved successfully at {model_path}")
+        message = f"Model for {username} saved successfully at {model_path}"
+        logging.info(message)
+        print(message)
+        socketio.emit('progress', {'progress': 100, 'message': message})
     except Exception as e:
-        print(f"An error occurred while saving the model for {username}: {str(e)}")
+        message = f"An error occurred while saving the model for {username}: {str(e)}"
+        logging.error(message)
+        print(message)
+        socketio.emit('progress', {'progress': training_progress, 'message': message})
+
+# Klasse für die Umleitung der Standardausgabe
+class StreamToSocketIO:
+    def __init__(self):
+        self.line = ''
+        self.logs = []
+
+    def write(self, buffer):
+        self.line += buffer
+        if buffer.endswith('\n'):
+            self.logs.append(self.line)  # Logs speichern
+            socketio.emit('log_message', {'data': self.line})
+            self.line = ''
+
+    def flush(self):
+        pass
+
+    def get_logs(self):
+        return self.logs
+
+# Instanz von StreamToSocketIO erstellen
+stream_to_socketio = StreamToSocketIO()
+sys.stdout = stream_to_socketio
 
 # Endpunkt für den Trainingsfortschritt
 @app.route('/training-progress', methods=['GET'])
@@ -125,13 +179,13 @@ def get_training_progress():
 # Endpunkt für Konsolenmeldungen
 @app.route('/console-logs', methods=['GET'])
 def get_console_logs():
-    with open('training.log', 'r') as f:
-        logs = f.read()
+    logs = stream_to_socketio.get_logs()  # Logs aus StreamToSocketIO abrufen
     return jsonify({'logs': logs}), 200
 
 # Starten des Trainings in einem separaten Thread
 training_thread = threading.Thread(target=train_model)
 training_thread.start()
 
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+    socketio.run(app, host='0.0.0.0', port=5001)

@@ -285,12 +285,13 @@ app.post("/verify-challenge", async (req, res, next) => {
       console.error("ML server is not running");
       return res.status(500).send("ML server is not running");
     }
+    console.log("ML server is running");
   } catch (error) {
     console.error("Error checking ML server status:", error);
     return res.status(500).send("ML Server is not running");
   }
 
-  console.log("Continueing with /predict Endpoint");
+  console.log("Continue with /predict Endpoint");
   try {
     const response = await axios.post("http://127.0.0.1:5000/predict", {
       fingerprint,
@@ -312,6 +313,8 @@ async function areAllFingerprintsCollected(fingerprintHash) {
 }
 
 async function runPythonScript(username) {
+  console.log(`Running Python script for user: ${username}`);
+  console.log("WARNING TRAINING MODEL WILL BE STARTED!");
   return new Promise((resolve, reject) => {
     const command = `python src/SWAT_auth/train_model.py ${username}`;
     exec(command, (error, stdout, stderr) => {

@@ -42,6 +42,11 @@ body {
 }
 
 main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     padding: 20px;
 }
 
@@ -256,4 +261,60 @@ progress::-moz-progress-bar {
   position: absolute;
   font-size: 1.2em;
   font-weight: bold;
+}
+
+/* Terminal-Details */
+.terminal-details {
+    font-size: 1.2em;
+    background: none;
+    padding: 0;
+    margin: 20px 0;
+    border: none;
+    box-shadow: none;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Zentrales Terminal-Fenster */
+.terminal-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.terminal-details summary {
+    font-size: 1.2em;
+    color: #000000;
+    cursor: pointer;
+    padding: 5px;
+    width: 50%;
+    border-radius: 5px;
+    background: rgb(102, 156, 233);
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.terminal-details summary:hover {
+    background: #ffffff;
+}
+
+.terminal-window {
+    background: black;
+    color: #00ff00;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 0 auto;
+    max-width: 800px;
+    width: 100%;
+    min-height: 100px; /* Höhe des Terminalfensters */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+pre {
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
 }
