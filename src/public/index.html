@@ -26,8 +26,19 @@
         </ul>
       </nav>
       <div id="verification-status" class="verification-status"></div>
+      <div id="model-status" class="model-status"></div>
     </header>
     <body>
+      
+      <main>
+        <!-- Circular progress bar -->
+        <div class="circular-progress-container">
+            <div class="circular-progress" id="circular-progress">
+                <span id="circular-progress-text">0%</span>
+            </div>
+        </div>
+    </main>
+    <div id="prediction-result" class="prediction-result"></div>
       <!-- Add a new progress bar for local progress -->
       <div class="progress-container">
         <span id="local-progress-label">Local Progress:</span>
@@ -41,7 +52,6 @@
         <progress id="server-progress" max="100" value="0"></progress>
         <span id="server-progress-percent">0%</span>
       </div>
-    </body>
     <details>
       <summary>Fingerprint Data</summary>
       <div id="root">

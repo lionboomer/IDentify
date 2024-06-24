@@ -5,7 +5,7 @@
   "description": "Welcome to IDentify, a project aimed at enhancing web application security through innovative machine learning-powered device fingerprinting techniques.",
   "main": "./src/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "nodemon ./src/app.js",
     "build": "parcel build ./src/public/index.html"
   },
@@ -38,7 +38,9 @@
     "@babel/core": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "babel-loader": "^9.1.3",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.0",
-    "parcel-bundler": "^1.12.5"
+    "parcel-bundler": "^1.12.5",
+    "supertest": "^7.0.0"
   }
 }

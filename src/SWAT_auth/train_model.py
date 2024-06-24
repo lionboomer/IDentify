@@ -1,3 +1,5 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import pymongo
 from pymongo import MongoClient
 import base64
@@ -10,6 +12,10 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 import os
 import sys
+import threading
+
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Verbindung zu MongoDB herstellen
 client = MongoClient("mongodb://localhost:27017/")
@@ -53,6 +59,10 @@ print(f"Creating model for {username}")
 
 # Positive Beispiele (Canvases des aktuellen Benutzers)
 user = collection.find_one({"username": username})
+if user is None:
+    print(f"No user found with username {username}")
+    sys.exit(1)
+
 user_canvases = get_canvases(user)
 X_positive = np.array(user_canvases)
 y_positive = np.ones(len(X_positive))
@@ -86,11 +96,42 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 input_shape = X_train.shape[1:]
 model = create_cnn_model(input_shape)
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
-# Modell speichern
-try:
-    model.save(model_path)
-    print(f"Model for {username} saved successfully at {model_path}")
-except Exception as e:
-    print(f"An error occurred while saving the model for {username}: {str(e)}")
+# Globale Variablen für den Trainingsfortschritt
+training_progress = 0
+total_epochs = 10
+
+# Callback-Klasse für den Trainingsfortschritt
+class TrainingProgressCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        global training_progress
+        training_progress = (epoch + 1) / total_epochs * 100
+        print(f"Epoch {epoch + 1}/{total_epochs} - Progress: {training_progress:.2f}%")
+
+# Trainingsfunktion
+def train_model():
+    model.fit(X_train, y_train, epochs=total_epochs, batch_size=32, validation_data=(X_test, y_test), callbacks=[TrainingProgressCallback()])
+    try:
+        model.save(model_path)
+        print(f"Model for {username} saved successfully at {model_path}")
+    except Exception as e:
+        print(f"An error occurred while saving the model for {username}: {str(e)}")
+
+# Endpunkt für den Trainingsfortschritt
+@app.route('/training-progress', methods=['GET'])
+def get_training_progress():
+    return jsonify({'progress': training_progress}), 200
+
+# Endpunkt für Konsolenmeldungen
+@app.route('/console-logs', methods=['GET'])
+def get_console_logs():
+    with open('training.log', 'r') as f:
+        logs = f.read()
+    return jsonify({'logs': logs}), 200
+
+# Starten des Trainings in einem separaten Thread
+training_thread = threading.Thread(target=train_model)
+training_thread.start()
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001)

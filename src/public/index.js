@@ -3,6 +3,7 @@ import * as canvasFp from "./canvas.js";
 import * as webglFp from "./webgl.js";
 
 let GlobalfingerprintHash;
+let username;
 let localProgress = 0; // Variable zur Speicherung des lokalen Fortschritts
 
 const hashFuntion = async (fingerprint) => {
@@ -40,6 +41,7 @@ const generateFingerprint = async () => {
   };
   const fingerprintHash = await hashFuntion(fingerprint);
   GlobalfingerprintHash = fingerprintHash;
+  username = await getUsernameByFingerprintHash(GlobalfingerprintHash);
   return {
     fingerprint,
     fingerprintHash,
@@ -92,7 +94,10 @@ async function sendFingerprint() {
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
-      if (data.message === "Fingerprint recognized. Please complete the challenge.") {
+      if (
+        data.message ===
+        "Fingerprint recognized. Please complete the challenge."
+      ) {
         alert(
           `Fingerprint recognized. Please complete the challenge. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`
         ); // Add username here
@@ -116,25 +121,39 @@ async function sendFingerprint() {
   populateTable(fingerprint);
 }
 
-function sendFingerprintToServer(fingerprint) {
-  fetch("/fingerprint", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ fingerprint }),
-  })
-    .then((response) => {
-      console.log("Response status:", response.status);
-      return response.json();
-    })
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((error) => {
-      console.error(error);
+async function sendFingerprintToServer(fingerprint, fingerprintHash) {
+  try {
+    const response = await fetch("/fingerprint", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fingerprint, fingerprintHash }),
     });
+
+    console.log("Response status:", response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error sending fingerprint:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+
+    if (data.message === "Fingerprint recognized. Please complete the challenge.") {
+      alert(`Fingerprint recognized. Please complete the challenge. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`);
+      // Call the function to handle the challenge
+      handleChallenge();
+    } else {
+      alert(`Fingerprint saved. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`);
+    }
+  } catch (error) {
+    console.error("Error in sendFingerprintToServer:", error);
+  }
 }
+
 
 // Function to handle the challenge
 async function handleChallenge() {
@@ -144,7 +163,10 @@ async function handleChallenge() {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ fingerprint: newFingerprint, fingerprintHash: GlobalfingerprintHash }),
+    body: JSON.stringify({
+      fingerprint: newFingerprint,
+      fingerprintHash: GlobalfingerprintHash,
+    }),
   });
 
   const data = await response.json();
@@ -159,7 +181,6 @@ async function handleChallenge() {
     verificationStatus.style.color = "red";
   }
 }
-
 
 // Function to generate a random canvas with text
 function generateRandomCanvas(txt) {
@@ -187,7 +208,9 @@ function generateRandomCanvas(txt) {
 
 // Function to generate multiple canvas fingerprints
 async function generateCanvasFingerprints(fingerprintsToGenerate) {
-  console.log(`Starting generateCanvasFingerprints with ${fingerprintsToGenerate} fingerprints to generate`);
+  console.log(
+    `Starting generateCanvasFingerprints with ${fingerprintsToGenerate} fingerprints to generate`
+  );
 
   let fingerprints = [];
   const progressBar = document.getElementById("local-progress");
@@ -228,12 +251,15 @@ async function generateRequiredCanvasFingerprints(fingerprintHash) {
   }
 
   console.log(`Fetching fingerprint count for hash: ${fingerprintHash}`);
-  const response = await fetch(`/fingerprintCount/${encodeURIComponent(fingerprintHash)}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const response = await fetch(
+    `/fingerprintCount/${encodeURIComponent(fingerprintHash)}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   if (!response.ok) {
     console.error(`HTTP error! status: ${response.status}`);
@@ -255,7 +281,11 @@ async function generateRequiredCanvasFingerprints(fingerprintHash) {
   const progressBar = document.getElementById("local-progress");
   progressBar.value = existingFingerprintsCount + fingerprints.length;
 
-  console.log(`Generated ${fingerprints.length} new fingerprints. Total: ${existingFingerprintsCount + fingerprints.length} of 20`);
+  console.log(
+    `Generated ${fingerprints.length} new fingerprints. Total: ${
+      existingFingerprintsCount + fingerprints.length
+    } of 20`
+  );
 }
 
 async function sendFingerprints(fingerprint) {
@@ -285,7 +315,9 @@ async function sendFingerprints(fingerprint) {
 
   if (!response.ok) {
     const responseBody = await response.json();
-    console.error(`HTTP error! status: ${response.status}, message: ${responseBody.message}`);
+    console.error(
+      `HTTP error! status: ${response.status}, message: ${responseBody.message}`
+    );
 
     if (responseBody.message === "Canvases array is full") {
       console.error("Canvases array is full.");
@@ -321,33 +353,32 @@ async function getFingerprintCount(fingerprintHash) {
   }
 }
 
-async function predictFingerprint(fingerprint) {
-  const response = await fetch("/predict", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ fingerprint }),
-  });
+async function predictFingerprint(username, fingerprint) {
+  console.log("Predicting fingerprint for username:", username);
+  console.log("Fingerprint:", fingerprint);
+  try {
+    const response = await fetch("/verify-challenge", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, fingerprint }),
+    });
 
-  const data = await response.json();
-  console.log("Prediction:", data.prediction);
-  return data.prediction;
-}
+    console.log("Response status:", response.status);
 
-// Beispiel für die Verwendung der Vorhersagefunktion
-async function exampleUsage() {
-  const { fingerprint } = await generateFingerprint();
-  const prediction = await predictFingerprint(fingerprint);
-  console.log("Prediction result:", prediction);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error predicting fingerprint:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-  const resultElement = document.getElementById("prediction-result");
-  if (prediction > 0.5) {
-    resultElement.textContent = "User recognized!";
-    resultElement.style.color = "green";
-  } else {
-    resultElement.textContent = "User not recognized!";
-    resultElement.style.color = "red";
+    const data = await response.json();
+    console.log("Prediction:", data.prediction);
+    return data.prediction;
+  } catch (error) {
+    console.error("Error in predictFingerprint:", error);
+    throw error;
   }
 }
 
@@ -358,8 +389,11 @@ async function updateServerProgressBar() {
   const serverProgressBar = document.getElementById("server-progress");
   const serverProgressPercent = document.getElementById("server-progress-percent");
 
-  serverProgressBar.value = serverProgress;
-  serverProgressPercent.textContent = `${serverProgress}%`;
+  // Runden des Fortschritts auf zwei Dezimalstellen
+  const roundedServerProgress = serverProgress.toFixed(2);
+
+  serverProgressBar.value = roundedServerProgress;
+  serverProgressPercent.textContent = `${roundedServerProgress}%`;
 
   if (serverProgress === 100) {
     const localProgressBar = document.getElementById("local-progress");
@@ -370,13 +404,150 @@ async function updateServerProgressBar() {
   }
 }
 
+
 setInterval(updateServerProgressBar, 1000);
 
+// Funktion zum Überprüfen, ob das Modell existiert
+async function checkModelStatus(username) {
+  console.log("Requesting model statusfor username:", username);
+  try {
+    const response = await fetch(`/model-status?username=${username}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log("Response was:", response.ok);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error checking model status:", errorText);
+      return false;
+    }
+
+    const data = await response.json();
+    return data.exists;
+  } catch (error) {
+    console.error("Error checking model status:", error);
+    return false;
+  }
+}
+
+async function createModel(username) {
+  try {
+    const response = await fetch("/create-model", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error creating model:", errorText);
+      return false;
+    }
+
+    // Start checking server progress
+    let serverProgress = 0;
+    const intervalId = setInterval(async () => {
+      serverProgress = await updateServerProgressBar();
+      if (serverProgress >= 10) {
+        clearInterval(intervalId);
+      }
+    }, 1000);
+
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error("Error creating model:", error);
+    return false;
+  }
+}
+
+// Funktion zum Abrufen des Benutzernamens basierend auf dem Fingerprint-Hash
+async function getUsernameByFingerprintHash(fingerprintHash) {
+  try {
+    const response = await fetch(
+      `/get-username?fingerprintHash=${fingerprintHash}`
+    );
+    const data = await response.json();
+    return data.username;
+  } catch (error) {
+    console.error("Error fetching username:", error);
+    throw error;
+  }
+}
+
+// Hauptlogik in eine Funktion auslagern
+async function checkAndCreateModel() {
+  const statusMessage = document.getElementById("model-status");
+  const username = await getUsernameByFingerprintHash(GlobalfingerprintHash);
+  const modelExists = await checkModelStatus(username);
+  console.log("Model exists:", modelExists);
+
+  // Start checking server progress
+  let serverProgress = 0;
+  const intervalId = setInterval(async () => {
+    serverProgress = await updateServerProgressBar();
+    if (serverProgress >= 10) {
+      clearInterval(intervalId);
+    }
+  }, 1000);
+
+  if (modelExists === true) {
+    statusMessage.textContent = "Model already exists. Continue";
+    return true;
+  } else {
+    statusMessage.textContent = "Model does not exist. Creating model...";
+    const success = await createModel(username);
+    if (success) {
+      statusMessage.textContent = "Model created successfully.";
+      return true;
+    } else {
+      statusMessage.textContent = "Failed to create model.";
+      return false;
+    }
+  }
+}
+
+async function exampleUsage() {
+  try {
+    let txt = Math.random().toString(36).substring(2);
+    let fingerprint = generateRandomCanvas(txt);
+    console.log("Generated fingerprint:", fingerprint);
+
+    const prediction = await predictFingerprint(username, fingerprint);
+    console.log("Prediction result:", prediction);
+
+    const resultElement = document.getElementById("prediction-result");
+    if (!resultElement) {
+      throw new Error(
+        "Element with ID 'prediction-result' not found in the DOM"
+      );
+    }
+
+    if (prediction > 0.5) {
+      resultElement.textContent = "User recognized!";
+      resultElement.style.color = "green";
+    } else {
+      resultElement.textContent = "User not recognized!";
+      resultElement.style.color = "red";
+    }
+  } catch (error) {
+    console.error("Error in exampleUsage:", error);
+  }
+}
+
+// Funktion zum sequentiellen Ausführen von Funktionen
 async function runFunctionsSequentially() {
   await sendFingerprint();
-  generateRequiredCanvasFingerprints(GlobalfingerprintHash);
-  sendFingerprintToServer();
+  await generateRequiredCanvasFingerprints(GlobalfingerprintHash);
+  await sendFingerprintToServer();
+    if (await checkAndCreateModel()) {
+      await exampleUsage();
+    }
 }
 
 runFunctionsSequentially();
-exampleUsage();

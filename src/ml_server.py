@@ -28,6 +28,10 @@ dictConfig({
     }
 })
 
+@app.route('/status', methods=['GET'])
+def status():
+    return jsonify({'status': 'ML server is running'}), 200
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
@@ -35,7 +39,6 @@ def predict():
         app.logger.debug(f"Received data: {{'username': {data.get('username')}, 'fingerprint': {data.get('fingerprint')}}}")
         fingerprint = data.get('fingerprint')
         username = data.get('username')
-
         if not fingerprint or not username:
             app.logger.error("Missing fingerprint or username in request.")
             return jsonify({'error': 'Missing fingerprint or username'}), 400
@@ -45,13 +48,11 @@ def predict():
         if isinstance(fingerprint, str):
             # Remove the data URI prefix to extract raw base64 data
             fingerprint_data = fingerprint.split(",")[1]
-
             # Decode base64 to image
             decoded = base64.b64decode(fingerprint_data)
             img = Image.open(BytesIO(decoded))
-
             # Convert to NumPy array and preprocess (resizing, normalization)
-            img_array = img_to_array(img) / 255.0  # Normalize to [0, 1]
+            img_array = img_to_array(img) / 255.0 # Normalize to [0, 1]
             input_data = tf.image.resize(img_array, [35, 280])
             input_data = np.expand_dims(input_data, axis=0)
         else:
@@ -65,14 +66,21 @@ def predict():
         app.logger.debug(f"Current working directory: {current_directory}")
 
         # Modell laden
-        model_path = f'SWAT_auth/models/{username}_fingerprint_model.h5'
+        #testen in welchen cwd wir uns befinden
+        # Wenn wir uns nicht in dem Verzeichnis am end /src befinden, dann müssen wir den Pfad anpassen
+        if not current_directory.endswith("src"):
+            model_path = f'src/SWAT_auth/models/{username}_fingerprint_model.h5'
+        else:
+            model_path = f'SWAT_auth/models/{username}_fingerprint_model.h5'
         app.logger.debug(f"Loading model from path: {model_path}")
+        app.logger.debug("Actual working directory: " + os.getcwd())
         model = tf.keras.models.load_model(model_path, compile=False)
 
         # Vorhersage treffen
         app.logger.debug("Making prediction...")
         prediction = model.predict(input_data)
         result = float(prediction[0][0])
+
         app.logger.info(f"Prediction made successfully: {result}")
         return jsonify({'prediction': result})
 
