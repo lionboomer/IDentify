@@ -271,7 +271,7 @@ progress::-moz-progress-bar {
     margin: 20px 0;
     border: none;
     box-shadow: none;
-    width: 50%;
+    width: 100%;
     display: flex;
     justify-content: center;
 }
@@ -289,7 +289,7 @@ progress::-moz-progress-bar {
     color: #000000;
     cursor: pointer;
     padding: 5px;
-    width: 50%;
+    width: 100%;
     border-radius: 5px;
     background: rgb(102, 156, 233);
     text-align: center;
