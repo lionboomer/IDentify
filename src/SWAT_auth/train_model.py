@@ -10,7 +10,8 @@ from io import BytesIO
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 import os
 import sys
 import threading
@@ -39,22 +40,79 @@ def decode_base64_image(base64_string):
 def get_canvases(data):
     return [decode_base64_image(canvas) for canvas in data["canvases"]]
 
-# CNN-Modell erstellen
-def create_cnn_model(input_shape):
+# CNN-Modelle erstellen
+def create_model_1(input_shape):
+    model = Sequential()
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Flatten())
+    model.add(Dense(128, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_model_2(input_shape):
+    model = Sequential()
+    model.add(Conv2D(64, (3, 3), activation='relu', input_shape=input_shape))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_model_3(input_shape):
+    model = Sequential()
+    model.add(Conv2D(64, (3, 3), activation='relu', input_shape=input_shape))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_model_4(input_shape):
+    model = Sequential()
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
+    model.add(Conv2D(32, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Flatten())
+    model.add(Dense(512, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_model_5(input_shape):
+    model = Sequential()
+    model.add(Conv2D(64, (7, 7), activation='relu', input_shape=input_shape))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(256, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Flatten())
+    model.add(Dense(512, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_model_6(input_shape):
     model = Sequential()
     model.add(Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
     model.add(MaxPooling2D((2, 2)))
     model.add(Conv2D(64, (3, 3), activation='relu'))
     model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
     model.add(Flatten())
-    model.add(Dense(128, activation='relu'))
-    model.add(Dense(1, activation='sigmoid'))  # Binäre Klassifikation
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
     return model
 
 # Benutzername aus den Argumenten abrufen
 username = sys.argv[1]
 
-#Modellpfad anpassn je nach dem wo das skript ausgeführt wird wenn am ende des pwd ein src steht muss der fpad angepasst werden 
+# Modellpfad anpassen je nach dem wo das Skript ausgeführt wird
 if 'src' in os.getcwd():
     model_path = f'src/models/{username}_fingerprint_model.h5'
 else:
@@ -102,74 +160,66 @@ y = np.concatenate((y_positive, y_negative), axis=0)
 # Aufteilen der Daten in Trainings- und Testsets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Modell erstellen und trainieren
+# Daten normalisieren
+X_train = X_train / 255.0
+X_test = X_test / 255.0
+
+# Modelle definieren
 input_shape = X_train.shape[1:]
-model = create_cnn_model(input_shape)
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+models = [
+    create_model_1(input_shape),
+    create_model_2(input_shape),
+    create_model_3(input_shape),
+    create_model_4(input_shape),
+    create_model_5(input_shape),
+    create_model_6(input_shape)
+]
+model_names = ['Model 1', 'Model 2', 'Model 3', 'Model 4', 'Model 5', 'Model 6']
 
-# Globale Variablen für den Trainingsfortschritt
-training_progress = 0
-total_epochs = 10
+# Callbacks
+early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+best_model_checkpoint = ModelCheckpoint('best_model.h5', save_best_only=True, monitor='val_accuracy', mode='max')
 
-# Logging konfigurieren
-logging.basicConfig(filename='training.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+best_accuracy = 0
+best_model = None
 
-# Callback-Klasse für den Trainingsfortschritt
-class TrainingProgressCallback(tf.keras.callbacks.Callback):
-    def on_epoch_end(self, epoch, logs=None):
-        global training_progress
-        training_progress = (epoch + 1) / total_epochs * 100
-        message = f"Epoch {epoch + 1}/{total_epochs} - Progress: {training_progress:.2f}%"
-        logging.info(message)
-        print(message)
-        socketio.emit('progress', {'progress': training_progress, 'message': message})
+# Modelle nacheinander trainieren und bewerten
+results = []
+for model, name in zip(models, model_names):
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    history = model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test), callbacks=[early_stopping, best_model_checkpoint])
+    
+    # Modell bewerten
+    loss, accuracy = model.evaluate(X_test, y_test)
+    print(f"{name} - Test Loss: {loss}")
+    print(f"{name} - Test Accuracy: {accuracy}")
+    results.append({'Model': name, 'Accuracy': accuracy})
 
-    def on_batch_end(self, batch, logs=None):
-        global training_progress
-        progress_increment = 1 / (total_epochs * len(X_train) / 32) * 100
-        training_progress += progress_increment
-        message = f"Batch {batch} - Progress: {training_progress:.2f}%"
-        logging.info(message)
-        print(message)
-        socketio.emit('progress', {'progress': training_progress, 'message': message})
+    if accuracy > best_accuracy:
+        best_accuracy = accuracy
+        best_model = model
 
-# Trainingsfunktion
-def train_model():
-    model.fit(X_train, y_train, epochs=total_epochs, batch_size=32, validation_data=(X_test, y_test), callbacks=[TrainingProgressCallback()])
-    try:
-        model.save(model_path)
-        message = f"Model for {username} saved successfully at {model_path}"
-        logging.info(message)
-        print(message)
-        socketio.emit('progress', {'progress': 100, 'message': message})
-    except Exception as e:
-        message = f"An error occurred while saving the model for {username}: {str(e)}"
-        logging.error(message)
-        print(message)
-        socketio.emit('progress', {'progress': training_progress, 'message': message})
+# Bestes Modell speichern
+if best_model is not None:
+    best_model.save(model_path)
+    print(f"Best model saved at {model_path} with accuracy {best_accuracy}")
+else:
+    print("No model was trained successfully.")
 
-# Klasse für die Umleitung der Standardausgabe
-class StreamToSocketIO:
-    def __init__(self):
-        self.line = ''
-        self.logs = []
+# Ergebnisse in einem DataFrame anzeigen
+import pandas as pd
+results_df = pd.DataFrame(results)
+print(results_df)
 
-    def write(self, buffer):
-        self.line += buffer
-        if buffer.endswith('\n'):
-            self.logs.append(self.line)  # Logs speichern
-            socketio.emit('log_message', {'data': self.line})
-            self.line = ''
-
-    def flush(self):
-        pass
-
-    def get_logs(self):
-        return self.logs
-
-# Instanz von StreamToSocketIO erstellen
-stream_to_socketio = StreamToSocketIO()
-sys.stdout = stream_to_socketio
+# Ergebnisse visualisieren
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8, 6))
+plt.bar(results_df['Model'], results_df['Accuracy'], color='skyblue')
+plt.title('Modellvergleich')
+plt.xlabel('Modell')
+plt.ylabel('Genauigkeit')
+plt.ylim(0, 1)
+plt.show()
 
 # Endpunkt für den Trainingsfortschritt
 @app.route('/training-progress', methods=['GET'])
@@ -185,7 +235,6 @@ def get_console_logs():
 # Starten des Trainings in einem separaten Thread
 training_thread = threading.Thread(target=train_model)
 training_thread.start()
-
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5001)
