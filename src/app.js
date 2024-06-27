@@ -100,6 +100,9 @@ app.post("/fingerprints", async (req, res) => {
     return res.status(400).send("Missing fingerprint");
   }
 
+  // Entferne den Präfix "data:image/png;base64," vom Fingerprint
+  const cleanedFingerprint = fingerprint.replace(/^data:image\/\w+;base64,/, "");
+
   let fingerprintRecord = await Fingerprint.findOne({ fingerprintHash });
   if (!fingerprintRecord) {
     console.log("No fingerprint record found, creating a new one");
@@ -108,7 +111,7 @@ app.post("/fingerprints", async (req, res) => {
 
   if (fingerprintRecord.canvases.length < 1900) {
     console.log("Adding new fingerprint to canvases array");
-    fingerprintRecord.canvases.push(fingerprint);
+    fingerprintRecord.canvases.push(cleanedFingerprint);
     progress = (fingerprintRecord.canvases.length / 1900) * 100;
     console.log(`Progress: ${progress}%`);
   } else {
