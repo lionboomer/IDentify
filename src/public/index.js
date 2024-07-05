@@ -357,12 +357,11 @@ async function getFingerprintCount(fingerprintHash) {
     console.error("Error fetching fingerprint count:", error);
   }
 }
-
 async function predictFingerprint(username, fingerprint) {
   console.log("Predicting fingerprint for username:", username);
   console.log("Fingerprint:", fingerprint);
   try {
-    const response = await fetch("/verify-challenge", {
+    const response = await fetch("/predict", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -379,8 +378,22 @@ async function predictFingerprint(username, fingerprint) {
     }
 
     const data = await response.json();
-    console.log("Prediction:", data.prediction);
-    return data.prediction;
+    console.log("Prediction data:", data);
+
+    const averagePrediction = data.average_prediction;
+    const majorityVote = data.majority_vote;
+    const individualPredictions = data.individual_predictions;
+
+    console.log("Average Prediction:", averagePrediction);
+    console.log("Majority Vote:", majorityVote);
+    console.log("Individual Predictions:", individualPredictions);
+
+    // Rückmeldung basierend auf den Vorhersagen
+    if (majorityVote === 1) {
+      return `Fingerprint authentication successful with an average confidence of ${averagePrediction.toFixed(2)}`;
+    } else {
+      return `Fingerprint authentication failed with an average confidence of ${averagePrediction.toFixed(2)}`;
+    }
   } catch (error) {
     console.error("Error in predictFingerprint:", error);
     throw error;
