@@ -113,8 +113,23 @@ def create_model_6(input_shape):
     model.add(Dense(1, activation='sigmoid'))
     return model
 
+# Funktion zum Überprüfen und Erstellen des Verzeichnisses
+def ensure_dir_exists(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+# Funktion zum Überprüfen, welche Modelle bereits existieren
+def check_existing_models(model_paths):
+    existing_models = []
+    for path in model_paths:
+        if os.path.exists(path):
+            existing_models.append(path)
+    return existing_models
+
 username = sys.argv[1]
-model_paths = [f'models/{username}_fingerprint_model_{i}.h5' for i in range(6)]
+model_dir = 'models'
+ensure_dir_exists(model_dir)
+model_paths = [os.path.join(model_dir, f'{username}_{i}.h5') for i in range(1, 7)]
 
 # Positive Beispiele (Canvases des aktuellen Benutzers)
 user = collection.find_one({"username": username})
@@ -176,11 +191,19 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 # Callbacks
 early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 
+# Überprüfen, welche Modelle bereits existieren
+existing_models = check_existing_models(model_paths)
+print(f"Existing models: {existing_models}")
+
 # Modelle nacheinander trainieren und bewerten
 results = []
 for i, (model, name) in enumerate(zip(models, model_names), start=1):
+    if model_paths[i-1] in existing_models:
+        print(f"Skipping {name} as it already exists at {model_paths[i-1]}")
+        continue
+
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    model_checkpoint = ModelCheckpoint(f'models/{username}_{i}.h5', save_best_only=False, monitor='val_accuracy', mode='max')
+    model_checkpoint = ModelCheckpoint(model_paths[i-1], save_best_only=False, monitor='val_accuracy', mode='max')
     history = model.fit(X_train, y_train, epochs=50, batch_size=8, validation_data=(X_test, y_test), callbacks=[early_stopping, model_checkpoint])
     loss, accuracy = model.evaluate(X_test, y_test)
     print(f"{name} - Test Loss: {loss}")
@@ -215,15 +238,18 @@ class TrainingProgressCallback(tf.keras.callbacks.Callback):
 
 # Trainingsfunktion
 def train_model():
-    for model in models:
-        model.fit(X_train, y_train, epochs=total_epochs, batch_size=32, validation_data=(X_test, y_test), callbacks=[TrainingProgressCallback()])
+    for i, model in enumerate(models):
+        if model_paths[i] not in existing_models:
+            model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+            model.fit(X_train, y_train, epochs=total_epochs, batch_size=32, validation_data=(X_test, y_test), callbacks=[TrainingProgressCallback()])
     try:
         for i, model in enumerate(models):
-            model.save(model_paths[i])
-            message = f"Model {i+1} for {username} saved successfully at {model_paths[i]}"
-            logging.info(message)
-            print(message)
-            socketio.emit('progress', {'progress': 100, 'message': message})
+            if model_paths[i] not in existing_models:
+                model.save(model_paths[i])
+                message = f"Model {i+1} for {username} saved successfully at {model_paths[i]}"
+                logging.info(message)
+                print(message)
+                socketio.emit('progress', {'progress': 100, 'message': message})
     except Exception as e:
         message = f"An error occurred while saving the model for {username}: {str(e)}"
         logging.error(message)
