@@ -113,23 +113,21 @@ def create_model_6(input_shape):
     model.add(Dense(1, activation='sigmoid'))
     return model
 
-# Funktion zum Überprüfen und Erstellen des Verzeichnisses
-def ensure_dir_exists(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-# Funktion zum Überprüfen, welche Modelle bereits existieren
-def check_existing_models(model_paths):
-    existing_models = []
-    for path in model_paths:
-        if os.path.exists(path):
-            existing_models.append(path)
-    return existing_models
-
+# Benutzername aus den Argumenten abrufen
 username = sys.argv[1]
-model_dir = 'models'
-ensure_dir_exists(model_dir)
-model_paths = [os.path.join(model_dir, f'{username}_{i}.h5') for i in range(1, 7)]
+
+# Modellpfad anpassen je nach dem wo das Skript ausgeführt wird
+if 'src' in os.getcwd():
+    model_path = f'src/models/{username}_fingerprint_model.h5'
+else:
+    model_path = f'models/{username}_fingerprint_model.h5'
+
+# Überprüfen, ob das Modell bereits existiert
+if os.path.exists(model_path):
+    print(f"Model for {username} already exists at {model_path}")
+    sys.exit(0)
+
+print(f"Creating model for {username}")
 
 # Positive Beispiele (Canvases des aktuellen Benutzers)
 user = collection.find_one({"username": username})
@@ -190,94 +188,48 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 # Callbacks
 early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+best_model_checkpoint = ModelCheckpoint('best_model.h5', save_best_only=True, monitor='val_accuracy', mode='max')
 
-# Überprüfen, welche Modelle bereits existieren
-existing_models = check_existing_models(model_paths)
-print(f"Existing models: {existing_models}")
+best_accuracy = 0
+best_model = None
 
 # Modelle nacheinander trainieren und bewerten
 results = []
-for i, (model, name) in enumerate(zip(models, model_names), start=1):
-    if model_paths[i-1] in existing_models:
-        print(f"Skipping {name} as it already exists at {model_paths[i-1]}")
-        continue
-
+for model, name in zip(models, model_names):
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    model_checkpoint = ModelCheckpoint(model_paths[i-1], save_best_only=False, monitor='val_accuracy', mode='max')
-    history = model.fit(X_train, y_train, epochs=50, batch_size=8, validation_data=(X_test, y_test), callbacks=[early_stopping, model_checkpoint])
+    history = model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test), callbacks=[early_stopping, best_model_checkpoint])
+    
+    # Modell bewerten
     loss, accuracy = model.evaluate(X_test, y_test)
     print(f"{name} - Test Loss: {loss}")
     print(f"{name} - Test Accuracy: {accuracy}")
     results.append({'Model': name, 'Accuracy': accuracy})
 
-# Globale Variablen für den Trainingsfortschritt
-training_progress = 0
-total_epochs = 50
+    if accuracy > best_accuracy:
+        best_accuracy = accuracy
+        best_model = model
 
-# Logging konfigurieren
-logging.basicConfig(filename='training.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+# Bestes Modell speichern
+if best_model is not None:
+    best_model.save(model_path)
+    print(f"Best model saved at {model_path} with accuracy {best_accuracy}")
+else:
+    print("No model was trained successfully.")
 
-# Callback-Klasse für den Trainingsfortschritt
-class TrainingProgressCallback(tf.keras.callbacks.Callback):
-    def on_epoch_end(self, epoch, logs=None):
-        global training_progress
-        training_progress = (epoch + 1) / total_epochs * 100
-        message = f"Epoch {epoch + 1}/{total_epochs} - Progress: {training_progress:.2f}%"
-        logging.info(message)
-        print(message)
-        socketio.emit('progress', {'progress': training_progress, 'message': message})
+# Ergebnisse in einem DataFrame anzeigen
+import pandas as pd
+results_df = pd.DataFrame(results)
+print(results_df)
 
-    def on_batch_end(self, batch, logs=None):
-        global training_progress
-        progress_increment = 1 / (total_epochs * len(X_train) / 32) * 100
-        training_progress += progress_increment
-        message = f"Batch {batch} - Progress: {training_progress:.2f}%"
-        logging.info(message)
-        print(message)
-        socketio.emit('progress', {'progress': training_progress, 'message': message})
-
-# Trainingsfunktion
-def train_model():
-    for i, model in enumerate(models):
-        if model_paths[i] not in existing_models:
-            model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-            model.fit(X_train, y_train, epochs=total_epochs, batch_size=32, validation_data=(X_test, y_test), callbacks=[TrainingProgressCallback()])
-    try:
-        for i, model in enumerate(models):
-            if model_paths[i] not in existing_models:
-                model.save(model_paths[i])
-                message = f"Model {i+1} for {username} saved successfully at {model_paths[i]}"
-                logging.info(message)
-                print(message)
-                socketio.emit('progress', {'progress': 100, 'message': message})
-    except Exception as e:
-        message = f"An error occurred while saving the model for {username}: {str(e)}"
-        logging.error(message)
-        print(message)
-        socketio.emit('progress', {'progress': training_progress, 'message': message})
-
-# Klasse für die Umleitung der Standardausgabe
-class StreamToSocketIO:
-    def __init__(self):
-        self.line = ''
-        self.logs = []
-
-    def write(self, buffer):
-        self.line += buffer
-        if buffer.endswith('\n'):
-            self.logs.append(self.line)  # Logs speichern
-            socketio.emit('log_message', {'data': self.line})
-            self.line = ''
-
-    def flush(self):
-        pass
-
-    def get_logs(self):
-        return self.logs
-
-# Instanz von StreamToSocketIO erstellen
-stream_to_socketio = StreamToSocketIO()
-sys.stdout = stream_to_socketio
+# Ergebnisse visualisieren
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8, 6))
+plt.bar(results_df['Model'], results_df['Accuracy'], color='skyblue')
+plt.title('Modellvergleich')
+plt.xlabel('Modell')
+plt.ylabel('Genauigkeit')
+plt.ylim(0, 1)
+plt.show()
 
 # Endpunkt für den Trainingsfortschritt
 @app.route('/training-progress', methods=['GET'])
