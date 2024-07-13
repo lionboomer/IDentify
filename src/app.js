@@ -16,13 +16,11 @@ async function doesModelExist(username) {
   try {
       for (let i = 1; i <= 6; i++) {
           const modelPath = path.join(__dirname, `SWAT_auth/models/${username}_${i}.h5`);
-          try {
-              await fs.access(modelPath);
-              console.log(`Model exists: ${modelPath}`);
-          } catch (error) {
+          if (!fs.existsSync(modelPath)) {
               console.log(`Model does not exist: ${modelPath}`);
               return false;
           }
+          console.log(`Model exists: ${modelPath}`);
       }
       console.log("All models exist for", username);
       return true;
@@ -31,6 +29,7 @@ async function doesModelExist(username) {
       return false;
   }
 }
+
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));

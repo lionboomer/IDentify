@@ -361,78 +361,47 @@ async function predictFingerprint(username, fingerprint) {
   console.log("Predicting fingerprint for username:", username);
   console.log("Fingerprint:", fingerprint);
   try {
-    const response = await fetch("/predict", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, fingerprint }),
-    });
-
-    console.log("Response status:", response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Error predicting fingerprint:", errorText);
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log("Prediction data:", data);
-
-    const averagePrediction = data.average_prediction;
-    const majorityVote = data.majority_vote;
-    const individualPredictions = data.individual_predictions;
-
-    console.log("Average Prediction:", averagePrediction);
-    console.log("Majority Vote:", majorityVote);
-    console.log("Individual Predictions:", individualPredictions);
-
-    // Rückmeldung basierend auf den Vorhersagen
-    if (majorityVote === 1) {
-      return `Fingerprint authentication successful with an average confidence of ${averagePrediction.toFixed(2)}`;
-    } else {
-      return `Fingerprint authentication failed with an average confidence of ${averagePrediction.toFixed(2)}`;
-    }
+      const response = await fetch("http://localhost:5000/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, fingerprint }),
+      });
+      console.log("Response status:", response.status);
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Error predicting fingerprint:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Prediction data:", data);
+      return data;
   } catch (error) {
-    console.error("Error in predictFingerprint:", error);
-    throw error;
+      console.error("Error in predictFingerprint:", error);
+      throw error;
   }
 }
 
 async function updateServerProgressBar() {
-  const response = await fetch(
-    `/progress?fingerprintHash=${encodeURIComponent(GlobalfingerprintHash)}`
-  );
-  const { progress: serverProgress } = await response.json();
+  try {
+    const response = await fetch(`/progress?fingerprintHash=${encodeURIComponent(GlobalfingerprintHash)}`);
+    const { progress: serverProgress } = await response.json();
+    const serverProgressBar = document.getElementById("server-progress");
+    const serverProgressPercent = document.getElementById("server-progress-percent");
 
-  const serverProgressBar = document.getElementById("server-progress");
-  const serverProgressPercent = document.getElementById(
-    "server-progress-percent"
-  );
+    const roundedServerProgress = serverProgress.toFixed(2);
+    serverProgressBar.value = roundedServerProgress;
+    serverProgressPercent.textContent = `${roundedServerProgress}%`;
 
-  // Runden des Fortschritts auf zwei Dezimalstellen
-  const roundedServerProgress = serverProgress.toFixed(2);
-
-  serverProgressBar.value = roundedServerProgress;
-  serverProgressPercent.textContent = `${roundedServerProgress}%`;
-
-  if (serverProgress === 100) {
-    const localProgressBar = document.getElementById("local-progress");
-    const localProgressPercent = document.getElementById(
-      "local-progress-percent"
-    );
-
-    localProgressBar.value = 100;
-    localProgressPercent.textContent = `100%`;
+    if (serverProgress === 100) {
+      const localProgressBar = document.getElementById("local-progress");
+      const localProgressPercent = document.getElementById("local-progress-percent");
+      localProgressBar.value = 100;
+      localProgressPercent.textContent = `100%`;
+    }
+  } catch (error) {
+    console.error("Error updating server progress bar:", error);
   }
 }
-
-setInterval(updateServerProgressBar, 1000);
-
-let terminalLogErrorCount = 0;
-let progressBarErrorCount = 0;
-const maxErrorAttempts = 1000;
 
 async function updateTerminalLogs() {
   try {
@@ -445,19 +414,17 @@ async function updateTerminalLogs() {
 
     const terminalOutput = document.getElementById("terminal-output");
     terminalOutput.textContent = logs.join("\n");
-    terminalOutput.scrollTop = terminalOutput.scrollHeight; // Scroll to the bottom
-    terminalLogErrorCount = 0; // Reset error count on success
+    terminalOutput.scrollTop = terminalOutput.scrollHeight;
   } catch (error) {
-    terminalLogErrorCount++;
     console.error("Error updating terminal logs:", error);
-    if (terminalLogErrorCount >= maxErrorAttempts) {
-      console.error(
-        "Max error attempts reached for terminal logs. Stopping updates."
-      );
-      clearInterval(terminalLogsInterval);
-    }
   }
 }
+setInterval(updateServerProgressBar, 1000);
+
+let terminalLogErrorCount = 0;
+let progressBarErrorCount = 0;
+const maxErrorAttempts = 0;
+
 
 // Intervall zum regelmäßigen Abrufen der Konsolenmeldungen
 const terminalLogsInterval = setInterval(updateTerminalLogs, 1000);
@@ -505,13 +472,11 @@ const progressBarInterval = setInterval(updateCircularProgressBar, 1000);
 
 // Funktion zum Überprüfen, ob das Modell existiert
 async function checkModelStatus(username) {
-  console.log("Requesting model statusfor username:", username);
+  console.log("Requesting model status for username:", username);
   try {
     const response = await fetch(`/model-status?username=${username}`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
     console.log("Response was:", response.ok);
 
@@ -533,9 +498,7 @@ async function createModel(username) {
   try {
     const response = await fetch("/create-model", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username }),
     });
 
@@ -544,15 +507,6 @@ async function createModel(username) {
       console.error("Error creating model:", errorText);
       return false;
     }
-
-    // Start checking server progress
-    let serverProgress = 0;
-    const intervalId = setInterval(async () => {
-      serverProgress = await updateServerProgressBar();
-      if (serverProgress >= 10) {
-        clearInterval(intervalId);
-      }
-    }, 1000);
 
     const result = await response.json();
     return result.success;
@@ -578,7 +532,6 @@ async function getUsernameByFingerprintHash(fingerprintHash) {
 
 // Hauptlogik in eine Funktion auslagern
 async function checkAndCreateModel() {
-  const localProgressBar = document.getElementById("circular-progress");
   const statusMessage = document.getElementById("model-status");
   const username = await getUsernameByFingerprintHash(GlobalfingerprintHash);
   const modelExists = await checkModelStatus(username);
@@ -589,23 +542,9 @@ async function checkAndCreateModel() {
     const localProgressBar = document.getElementById("local-progress");
     localProgressBar.value = 100;
     const circularProgressBar = document.getElementById("circular-progress");
-    const circularProgressText = document.getElementById(
-      "circular-progress-text"
-    );
+    const circularProgressText = document.getElementById("circular-progress-text");
     circularProgressBar.style.background = `conic-gradient(#4caf50 100%, #f3f3f3 0%)`;
     circularProgressText.textContent = `100%`;
-  }
-
-  // Start checking server progress
-  let serverProgress = 0;
-  const intervalId = setInterval(async () => {
-    serverProgress = await updateServerProgressBar();
-    if (serverProgress >= 100) {
-      clearInterval(intervalId);
-    }
-  }, 1000);
-
-  if (modelExists === true) {
     statusMessage.textContent = "Model is trained and ready to use.";
     return true;
   } else {
@@ -623,30 +562,48 @@ async function checkAndCreateModel() {
 
 async function exampleUsage() {
   try {
-    let txt = Math.random().toString(36).substring(2);
-    let fingerprint = generateRandomCanvas(txt);
-    console.log("Generated fingerprint:", fingerprint);
+      let txt = Math.random().toString(36).substring(2);
+      let fingerprint = generateRandomCanvas(txt);
+      console.log("Generated fingerprint:", fingerprint);
 
-    const prediction = await predictFingerprint(username, fingerprint);
-    console.log("Prediction result:", prediction);
+      const username = await getUsernameByFingerprintHash(GlobalfingerprintHash);
+      const predictionData = await predictFingerprint(username, fingerprint);
+      console.log("Prediction result:", predictionData);
 
-    const resultElement = document.getElementById("verification-status");
-    if (!resultElement) {
-      throw new Error(
-        "Element with ID 'verification-status' not found in the DOM"
-      );
-    }
-
-    if (prediction > 0.5) {
-      resultElement.textContent = "User recognized!";
-      resultElement.style.color = "green";
-    } else {
-      resultElement.textContent = "User not recognized!";
-      resultElement.style.color = "red";
-    }
+      displayPredictionResults(predictionData);
   } catch (error) {
-    console.error("Error in exampleUsage:", error);
+      console.error("Error in exampleUsage:", error);
   }
+}
+
+function displayPredictionResults(data) {
+  const resultElement = document.getElementById("verification-status");
+  const individualPredictionsElement = document.getElementById("individual-predictions");
+
+  if (!resultElement || !individualPredictionsElement) {
+      throw new Error("Element with ID 'verification-status' or 'individual-predictions' not found in the DOM");
+  }
+
+  const averagePrediction = data.average_prediction;
+  const majorityVote = data.majority_vote;
+  const individualPredictions = data.individual_predictions;
+
+  // Anzeige der Mehrheitsentscheidung
+  if (majorityVote === 1) {
+      resultElement.textContent = `Fingerprint authentication successful with an average confidence of ${averagePrediction.toFixed(2)}`;
+      resultElement.style.color = "green";
+  } else {
+      resultElement.textContent = `Fingerprint authentication failed with an average confidence of ${averagePrediction.toFixed(2)}`;
+      resultElement.style.color = "red";
+  }
+
+  // Anzeige der individuellen Vorhersagen
+  individualPredictionsElement.innerHTML = "";
+  individualPredictions.forEach(prediction => {
+      const predictionItem = document.createElement("li");
+      predictionItem.textContent = `Model: ${prediction.model}, Prediction: ${prediction.prediction.toFixed(2)}`;
+      individualPredictionsElement.appendChild(predictionItem);
+  });
 }
 
 // Funktion zum sequentiellen Ausführen von Funktionen
@@ -659,4 +616,19 @@ async function runFunctionsSequentially() {
   }
 }
 
+async function fetchWithErrorHandling(url, options) {
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Error fetching ${url}: ${errorText}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(`Error in fetchWithErrorHandling: ${error}`);
+    throw error;
+  }
+}
 runFunctionsSequentially();
+
