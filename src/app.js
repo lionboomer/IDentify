@@ -10,10 +10,26 @@ const bodyParser = require("body-parser");
 const axios = require("axios");
 const { exit } = require("process");
 const { exec } = require("child_process");
+// Funktion zum Überprüfen, ob alle 6 Modelle existieren
 
 async function doesModelExist(username) {
-  const modelPath = `src/SWAT_auth/models/${username}_fingerprint_model.h5`;
-  return fs.existsSync(modelPath);
+  try {
+      for (let i = 1; i <= 6; i++) {
+          const modelPath = path.join(__dirname, `SWAT_auth/models/${username}_${i}.h5`);
+          try {
+              await fs.access(modelPath);
+              console.log(`Model exists: ${modelPath}`);
+          } catch (error) {
+              console.log(`Model does not exist: ${modelPath}`);
+              return false;
+          }
+      }
+      console.log("All models exist for", username);
+      return true;
+  } catch (error) {
+      console.error("An error occurred:", error);
+      return false;
+  }
 }
 
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -224,49 +240,43 @@ app.post("/fingerprint", async (req, res) => {
   }
 });
 
+// Endpunkt für den Modellstatus
 app.get("/model-status", async (req, res) => {
   const username = req.query.username;
   if (!username) {
-    return res.status(400).json({ error: "Username is required" });
+      return res.status(400).json({ error: "Username is required" });
   }
-
-  console.log(
-    "Getting model status request for user with username: ",
-    username
-  );
+  console.log("Getting model status request for user with username:", username);
   const modelExists = await doesModelExist(username);
   console.log(`Returning to Frontend: ${modelExists}`);
   res.json({ exists: modelExists });
 });
 
+// Endpunkt zum Erstellen von Modellen
 app.post("/create-model", async (req, res) => {
   const username = req.body.username;
   console.log(`Creating model for user: ${username}`);
-
-  // Überprüfen, ob das Modell bereits existiert
   const modelExists = await doesModelExist(username);
-
   if (modelExists) {
-    console.log("Model already exists, please check index.js");
-    return res.status(400).json({ error: "Model already exists" });
+      console.log("Models already exist, please check index.js");
+      return res.status(400).json({ error: "Models already exist" });
   }
-
   const command = `python src/SWAT_auth/train_model.py ${username}`;
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Transfer-Encoding", "chunked");
   const process = exec(command);
   process.stdout.on("data", (data) => {
-    res.write(JSON.stringify({ progress: data }));
+      res.write(JSON.stringify({ progress: data }));
   });
   process.stderr.on("data", (data) => {
-    console.error(`stderr: ${data}`);
+      console.error(`stderr: ${data}`);
   });
   process.on("close", (code) => {
-    if (code === 0) {
-      res.end(JSON.stringify({ success: true }));
-    } else {
-      res.end(JSON.stringify({ success: false }));
-    }
+      if (code === 0) {
+          res.end(JSON.stringify({ success: true }));
+      } else {
+          res.end(JSON.stringify({ success: false }));
+      }
   });
 });
 
