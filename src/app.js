@@ -111,7 +111,8 @@ app.post("/fingerprints", async (req, res) => {
 
   if (fingerprintRecord.canvases.length < 1900) {
     console.log("Adding new fingerprint to canvases array");
-    fingerprintRecord.canvases.push(cleanedFingerprint);
+    //fingerprintRecord.canvases.push(cleanedFingerprint);
+    fingerprintRecord.canvases.push(fingerprint);
     progress = (fingerprintRecord.canvases.length / 1900) * 100;
     console.log(`Progress: ${progress}%`);
   } else {

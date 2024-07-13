@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.applications import VGG16, ResNet50, InceptionV3, MobileNetV2
 import os
 import sys
 import threading
@@ -33,7 +34,8 @@ def decode_base64_image(base64_string):
         base64_data = base64_string.split(",")[1]
         byte_data = base64.b64decode(base64_data)
         image_data = BytesIO(byte_data)
-        image = Image.open(image_data)
+        image = Image.open(image_data).convert("RGB")  # Konvertieren zu RGB
+        image = image.resize((75, 75))  # Größe anpassen
         return np.array(image)
     except (IndexError, ValueError) as e:
         raise ValueError("Invalid base64 string format") from e
@@ -44,7 +46,7 @@ def get_canvases(data):
         raise ValueError("Invalid data format: 'canvases' key is missing or not a list")
     return [decode_base64_image(canvas) for canvas in data["canvases"]]
 
-# CNN-Modelle erstellen
+# Standardmodelle erstellen
 def create_model_1(input_shape):
     model = Sequential()
     model.add(Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
@@ -113,7 +115,78 @@ def create_model_6(input_shape):
     model.add(Dense(1, activation='sigmoid'))
     return model
 
+# Alternative Modelle erstellen
+def create_alt_model_1(input_shape):
+    # VGG16-ähnliches Modell
+    base_model = VGG16(weights=None, include_top=False, input_shape=input_shape)
+    model = Sequential()
+    model.add(base_model)
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_alt_model_2(input_shape):
+    # ResNet50-ähnliches Modell
+    base_model = ResNet50(weights=None, include_top=False, input_shape=input_shape)
+    model = Sequential()
+    model.add(base_model)
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_alt_model_3(input_shape):
+    # InceptionV3-ähnliches Modell
+    base_model = InceptionV3(weights=None, include_top=False, input_shape=input_shape)
+    model = Sequential()
+    model.add(base_model)
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_alt_model_4(input_shape):
+    # MobileNetV2-ähnliches Modell
+    base_model = MobileNetV2(weights=None, include_top=False, input_shape=input_shape)
+    model = Sequential()
+    model.add(base_model)
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_alt_model_5(input_shape):
+    # Custom CNN (ähnlich wie vorher)
+    model = Sequential()
+    model.add(Conv2D(64, (7, 7), activation='relu', input_shape=input_shape))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(256, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Flatten())
+    model.add(Dense(512, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+def create_alt_model_6(input_shape):
+    # Custom CNN (ähnlich wie vorher)
+    model = Sequential()
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
 username = sys.argv[1]
+use_alt_models = len(sys.argv) > 2 and sys.argv[2] == "alt"
+
 model_paths = [f'models/{username}_fingerprint_model_{i}.h5' for i in range(6)]
 
 # Positive Beispiele (Canvases des aktuellen Benutzers)
@@ -129,7 +202,6 @@ y_positive = np.ones(len(X_positive))
 # Negative Beispiele (Canvases der anderen Benutzer)
 X_negative = []
 y_negative = []
-
 for other_user in collection.find({"username": {"$ne": username}}):
     try:
         other_user_canvases = get_canvases(other_user)
@@ -160,14 +232,25 @@ X_test = X_test / 255.0
 
 # Modelle erstellen und trainieren
 input_shape = X_train.shape[1:]
-models = [
-    create_model_1(input_shape),
-    create_model_2(input_shape),
-    create_model_3(input_shape),
-    create_model_4(input_shape),
-    create_model_5(input_shape),
-    create_model_6(input_shape)
-]
+
+if use_alt_models:
+    models = [
+        create_alt_model_1(input_shape),
+        create_alt_model_2(input_shape),
+        create_alt_model_3(input_shape),
+        create_alt_model_4(input_shape),
+        create_alt_model_5(input_shape),
+        create_alt_model_6(input_shape)
+    ]
+else:
+    models = [
+        create_model_1(input_shape),
+        create_model_2(input_shape),
+        create_model_3(input_shape),
+        create_model_4(input_shape),
+        create_model_5(input_shape),
+        create_model_6(input_shape)
+    ]
 
 model_names = ['Model 1', 'Model 2', 'Model 3', 'Model 4', 'Model 5', 'Model 6']
 
