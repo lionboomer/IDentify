@@ -576,12 +576,17 @@ async function exampleUsage() {
   }
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  exampleUsage();
+});
+
 function displayPredictionResults(data) {
   const resultElement = document.getElementById("verification-status");
   const individualPredictionsElement = document.getElementById("individual-predictions");
+  const modelDropdown = document.getElementById("model-dropdown");
 
-  if (!resultElement || !individualPredictionsElement) {
-      throw new Error("Element with ID 'verification-status' or 'individual-predictions' not found in the DOM");
+  if (!resultElement || !individualPredictionsElement || !modelDropdown) {
+      throw new Error("Element with ID 'verification-status', 'individual-predictions', or 'model-dropdown' not found in the DOM");
   }
 
   const averagePrediction = data.average_prediction;
@@ -599,12 +604,42 @@ function displayPredictionResults(data) {
 
   // Anzeige der individuellen Vorhersagen
   individualPredictionsElement.innerHTML = "";
+  modelDropdown.innerHTML = ""; // Clear existing options
+
   individualPredictions.forEach(prediction => {
       const predictionItem = document.createElement("li");
-      predictionItem.textContent = `Model: ${prediction.model}, Prediction: ${prediction.prediction.toFixed(2)}`;
+
+      const modelName = document.createElement("span");
+      modelName.className = "model-name";
+      // Extrahiere den Modellnamen ohne Pfad und Dateierweiterung
+      const modelNameText = prediction.model.split('/').pop().replace('.h5', '');
+      modelName.textContent = modelNameText;
+
+      const predictionValue = document.createElement("span");
+      predictionValue.className = "prediction-value";
+      predictionValue.textContent = prediction.prediction.toFixed(2);
+      if (prediction.prediction < 0.5) {
+          predictionValue.classList.add("failed");
+      }
+
+      predictionItem.appendChild(modelName);
+      predictionItem.appendChild(predictionValue);
       individualPredictionsElement.appendChild(predictionItem);
+
+      // Dropdown-Option hinzufügen
+      const option = document.createElement("option");
+      option.value = modelNameText;
+      option.textContent = modelNameText;
+      modelDropdown.appendChild(option);
   });
+
+  // Zeige das Haupt-Element an
+  document.getElementById("main-content").style.display = "block";
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  displayPredictionResults(exampleData);
+});
 
 // Funktion zum sequentiellen Ausführen von Funktionen
 async function runFunctionsSequentially() {
@@ -615,6 +650,7 @@ async function runFunctionsSequentially() {
     await exampleUsage();
   }
 }
+
 
 async function fetchWithErrorHandling(url, options) {
   try {
