@@ -1,38 +1,5 @@
 # 🎉 IDentify: Revolutionizing Web Application Security with Canvas Fingerprinting 🎨
 
-Willkommen bei **IDentify**! Dieses Projekt hat erfolgreich die Sicherheit von Webanwendungen durch die Implementierung und Optimierung der Canvas Fingerprinting-Technik verbessert. Es bildet die Grundlage meiner Masterarbeit, die sich darauf konzentriert, die Modelle und Techniken weiter zu verfeinern und zu erweitern.
-
-## 🌟 Einführung
-
-In der digitalen Welt von heute ist die sichere Authentifizierung von Benutzern entscheidend. Traditionelle Methoden wie Passwörter sind oft unsicher und umständlich. **IDentify** bietet eine innovative Lösung durch die Nutzung von Canvas Fingerprinting, um einzigartige digitale Fingerabdrücke zu erstellen und die Benutzererfahrung zu verbessern.
-
-## 🥅 Ziele
-
-Die Hauptziele des Projekts waren:
-- **Implementierung** der Canvas Fingerprinting-Technik zur sicheren Benutzeridentifikation.
-- **Optimierung** der Machine Learning-Modelle zur Verbesserung der Erkennungsgenauigkeit.
-- **Erweiterung** der Technik durch Integration zusätzlicher Fingerprinting-Methoden.
-
-## 🔧 Methodik
-
-- **Canvas Fingerprinting**: Nutzung des HTML5 Canvas-Elements zur Erstellung einzigartiger Fingerabdrücke.
-- **Machine Learning-Modelle**: Entwicklung und Training von sechs Modellen zur zuverlässigen Klassifikation von Fingerabdrücken.
-- **Mehrheitsabstimmung**: Einsatz einer Mehrheitsabstimmung zur Verbesserung der Modellgenauigkeit.
-
-## 🚀 Ergebnisse und Auswirkungen
-
-- **Erfolgreiche Implementierung**: Die Technik funktioniert wie erwartet und ermöglicht die Identifikation von Geräten basierend auf spezifischen Hardware- und Softwarekonfigurationen.
-- **Herausforderungen**: Modelle haben Schwierigkeiten, denselben Nutzer über verschiedene Sitzungen hinweg zu erkennen, was auf die Notwendigkeit weiterer Optimierung hinweist.
-- **Zukunftspotenzial**: Canvas Fingerprinting bietet eine vielversprechende Methode zur Verbesserung der Sicherheit und Benutzerfreundlichkeit von Authentifizierungssystemen.
-
-## 🔮 Zukünftige Arbeiten
-
-Die zukünftigen Arbeiten im Rahmen meiner Masterarbeit konzentrieren sich auf die Optimierung und Erweiterung der bestehenden Techniken. Weitere Details findest du in der [Masterarbeit-Ziele](Masterarbeit_Ziele.md) Datei.
-
-## 📬 Kontakt
-
-Für Fragen oder weitere Informationen über IDentify, kontaktieren Sie bitte [lion.witte@kobil.com](mailto:lion.witte@kobil.com).
-
 ## 🛠️ Installation
 
 ### 🐳 Docker-Installation
@@ -53,7 +20,7 @@ Für Fragen oder weitere Informationen über IDentify, kontaktieren Sie bitte [l
         docker-compose up --build
         ```
 
-    3. Öffne deinen Browser und gehe zu [`http://localhost:3000`].
+    3. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
 
 ### 🖥️ Manuelle Installation
 
@@ -91,7 +58,7 @@ Für Fragen oder weitere Informationen über IDentify, kontaktieren Sie bitte [l
         python src/SWAT_auth/train_model.py
         ```
 
-    6. Öffne deinen Browser und gehe zu [`http://localhost:3000`].
+    6. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
 
 #### 🪟 Windows
 
@@ -127,7 +94,7 @@ Für Fragen oder weitere Informationen über IDentify, kontaktieren Sie bitte [l
         python src/SWAT_auth/train_model.py
         ```
 
-    6. Öffne deinen Browser und gehe zu [`http://localhost:3000`].
+    6. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
 
 ### 🐍 Installation mit Anaconda
 
@@ -172,19 +139,4 @@ Für Fragen oder weitere Informationen über IDentify, kontaktieren Sie bitte [l
         python src/SWAT_auth/train_model.py
         ```
 
-    7. Öffne deinen Browser und gehe zu [`http://localhost:3000`](.
-
-### 📤 Teilen der Anaconda-Umgebung
-
-Um deine Anaconda-Umgebung zu teilen, kannst du eine `environment.yml` Datei erstellen:
-
-1. Erstelle die `environment.yml` Datei:
-    ```sh
-    conda env export > environment.yml
-    ```
-
-2. Andere Benutzer können die Umgebung mit dieser Datei erstellen:
-    ```sh
-    conda env create -f environment.yml
-    conda activate identify_env
-    ```
+    7. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).

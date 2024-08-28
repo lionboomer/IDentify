@@ -29,6 +29,10 @@ Die Hauptziele des Projekts waren:
 
 Die zukünftigen Arbeiten im Rahmen meiner Masterarbeit konzentrieren sich auf die Optimierung und Erweiterung der bestehenden Techniken. Weitere Details findest du in der [Masterarbeit-Ziele](Masterarbeit_Ziele.md) Datei.
 
+## 📦 Installation
+
+Für Installationsanweisungen, siehe [Installation.md](Installation.md).
+
 ## 📬 Kontakt
 
 Für Fragen oder weitere Informationen über IDentify, kontaktieren Sie bitte [lion.witte@kobil.com](mailto:lion.witte@kobil.com).
