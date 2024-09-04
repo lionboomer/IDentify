@@ -1,20 +1,36 @@
 version: '3.8'
-
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.app
     ports:
       - "3000:3000"
+      - "80:80"
+      - "443:443"
     volumes:
       - .:/usr/src/app
     environment:
       - NODE_ENV=development
+      - MONGO_URI=mongodb://db:27017/fingerprintDB
+    depends_on:
+      - db
+      - ml_server
+  ml_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.ml
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - MONGO_URI=mongodb://db:27017/fingerprintDB
   db:
     image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
-
 volumes:
   mongo-data:

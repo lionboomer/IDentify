@@ -44,7 +44,7 @@ let progress = 0;
 async function connectDB() {
   try {
     if (!mongoose.connection.readyState) {
-      await mongoose.connect("mongodb://127.0.0.1:27017/fingerprintDB", {
+      await mongoose.connect("mongodb://mongo:27017/fingerprintDB", {
         serverSelectionTimeoutMS: 5000,
       });
       console.log("Connected to MongoDB");
