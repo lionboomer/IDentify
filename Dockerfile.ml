@@ -11,7 +11,8 @@ COPY environment.yml .
 RUN conda env create -f environment.yml
 
 # Ensure the Conda environment is activated
-SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
+RUN echo "source activate tfjs_env" > ~/.bashrc
+ENV PATH /opt/conda/envs/tfjs_env/bin:$PATH
 
 # Copy the rest of the application code to the working directory
 COPY . .
@@ -20,4 +21,4 @@ COPY . .
 EXPOSE 5000
 
 # Run the application when the container launches
-CMD ["conda", "run", "--no-capture-output", "-n", "myenv", "python", "src/ml_server.py"]
+CMD ["conda", "run", "--no-capture-output", "-n", "tfjs_env", "python", "src/ml_server.py"]
