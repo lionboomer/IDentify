@@ -44,7 +44,8 @@ let progress = 0;
 async function connectDB() {
   try {
     if (!mongoose.connection.readyState) {
-      await mongoose.connect("mongodb://127.0.0.1:27017/fingerprintDB", {
+      const mongoUri = process.env.MONGO_URI || "mongodb://mongo:27017/fingerprintDB";
+      await mongoose.connect(mongoUri, {
         serverSelectionTimeoutMS: 5000,
       });
       console.log("Connected to MongoDB");
@@ -55,7 +56,6 @@ async function connectDB() {
 }
 
 connectDB();
-
 // Weitere Anwendungslogik folgt...
 
 const FingerprintSchema = new mongoose.Schema({
