@@ -55,7 +55,8 @@
 
     5. Starte die Anwendung:
         ```sh
-        python src/SWAT_auth/train_model.py
+        node src/app.js
+        python src/ml_server.py
         ```
 
     6. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
@@ -91,7 +92,8 @@
 
     5. Starte die Anwendung:
         ```sh
-        python src/SWAT_auth/train_model.py
+        node src/app.js
+        python src/ml_server.py
         ```
 
     6. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
@@ -136,7 +138,11 @@
 
     6. Starte die Anwendung:
         ```sh
-        python src/SWAT_auth/train_model.py
+        node src/app.js
+        python src/ml_server.py
         ```
 
     7. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
+   
+
+   ## If you encounter any issues during the installation, please contact me via Email or LinkedIn. I will be happy to help you. 🤝
