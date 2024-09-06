@@ -10,22 +10,66 @@ const bodyParser = require("body-parser");
 const axios = require("axios");
 const { exit } = require("process");
 const { exec } = require("child_process");
+const winston = require('winston');
 // Funktion zum Überprüfen, ob alle 6 Modelle existieren
 
+// Definieren Sie benutzerdefinierte Log-Level
+const customLevels = {
+  levels: {
+    error: 0,
+    warn: 1,
+    info: 2,
+    debug: 3,
+    development: 4 // Neues Level für Entwicklungslogs
+  },
+  colors: {
+    error: 'red',
+    warn: 'yellow',
+    info: 'green',
+    debug: 'blue',
+    development: 'magenta'
+  }
+};
+
+// Erstellen Sie den Logger
+const logger = winston.createLogger({
+  levels: customLevels.levels,
+  format: winston.format.combine(
+    winston.format.colorize({ all: true }),
+    winston.format.simple()
+  ),
+  transports: [
+    new winston.transports.Console()
+  ]
+});
+
+// Aktivieren Sie die Farben
+winston.addColors(customLevels.colors);
+
+// Beispiel für Log-Nachrichten
+logger.development('Dies ist eine Entwicklungslog-Nachricht'); // Wird nur in der Entwicklung angezeigt
+logger.info('Dies ist eine Info-Meldung');
+logger.error('Dies ist eine Fehlermeldung');
+winston.addColors(customLevels.colors);
+
+// Funktion zum Löschen der Konsole
+function clearConsole() {
+  process.stdout.write('\x1Bc');
+}
 async function doesModelExist(username) {
   try {
       for (let i = 1; i <= 6; i++) {
           const modelPath = path.join(__dirname, `SWAT_auth/models/${username}_${i}.h5`);
           if (!fs.existsSync(modelPath)) {
-              console.log(`Model does not exist: ${modelPath}`);
+            logger.warn(`Model does not exist: ${modelPath}`);
               return false;
           }
-          console.log(`Model exists: ${modelPath}`);
+          logger.info(`Model exists: ${modelPath}`);
       }
-      console.log("All models exist for", username);
+      logger.info("All models exist for", username);
       return true;
   } catch (error) {
-      console.error("An error occurred:", error);
+      logger.error("An error occurred:", error);
       return false;
   }
 }
@@ -44,18 +88,18 @@ let progress = 0;
 async function connectDB() {
   try {
     if (!mongoose.connection.readyState) {
-      const mongoUri = process.env.MONGO_URI || "mongodb://mongo:27017/fingerprintDB";
-      await mongoose.connect(mongoUri, {
+      await mongoose.connect("mongodb://127.0.0.1:27017/fingerprintDB", {
         serverSelectionTimeoutMS: 5000,
       });
-      console.log("Connected to MongoDB");
+      logger.info('Connected to MongoDB');
     }
   } catch (error) {
-    console.error("Error connecting to MongoDB", error);
+    logger.error("Error connecting to MongoDB", error);
   }
 }
 
 connectDB();
+
 // Weitere Anwendungslogik folgt...
 
 const FingerprintSchema = new mongoose.Schema({
@@ -75,7 +119,7 @@ app.use(express.static(path.join(__dirname, "public")));
 const port = process.env.PORT || 3000;
 
 const server = app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
+  logger.info(`App listening at http://localhost:${port}`);
 });
 
 async function getUsernameByFingerprintHash(fingerprintHash) {
@@ -86,7 +130,7 @@ async function getUsernameByFingerprintHash(fingerprintHash) {
     }
     return fingerprintRecord.username;
   } catch (error) {
-    console.error("Error fetching username:", error);
+    logger.error("Error fetching username:", error);
     throw error;
   }
 }
@@ -105,13 +149,15 @@ app.get("/get-username", async (req, res) => {
   }
 });
 
+let progressLastTime = Date.now();
+
 app.post("/fingerprints", async (req, res) => {
   const { fingerprintHash, fingerprint } = req.body;
-  console.log(
+  logger.development(
     `Received POST request to /fingerprints with fingerprintHash: ${fingerprintHash}, fingerprint: ${fingerprint}`
   );
   if (!fingerprint) {
-    console.log("Missing fingerprint in request body");
+    logger.warn("Missing fingerprint in request body");
     return res.status(400).send("Missing fingerprint");
   }
 
@@ -120,24 +166,29 @@ app.post("/fingerprints", async (req, res) => {
 
   let fingerprintRecord = await Fingerprint.findOne({ fingerprintHash });
   if (!fingerprintRecord) {
-    console.log("No fingerprint record found, creating a new one");
+    logger.warn("No fingerprint record found, creating a new one");
     fingerprintRecord = new Fingerprint({ fingerprintHash, canvases: [] });
   }
 
   if (fingerprintRecord.canvases.length < 1900) {
-    console.log("Adding new fingerprint to canvases array");
-    //fingerprintRecord.canvases.push(cleanedFingerprint);
+    logger.development("Adding new fingerprint to canvases array");
     fingerprintRecord.canvases.push(fingerprint);
-    progress = (fingerprintRecord.canvases.length / 1900) * 100;
-    console.log(`Progress: ${progress}%`);
+    const progress = (fingerprintRecord.canvases.length / 1900) * 100;
+
+    const currentTime = Date.now();
+    if (currentTime - progressLastTime >= 200) {
+      clearConsole();
+      logger.info(`Progress: ${progress.toFixed(2)}%`);
+      progressLastTime = currentTime;
+    }
   } else {
-    console.log("Canvases array is full");
+    logger.warn("Canvases array is full");
     return res.status(400).send("Canvases array is full");
   }
 
-  console.log("Saving fingerprint record");
+  logger.development("Saving fingerprint record");
   await fingerprintRecord.save();
-  console.log("Fingerprint saved successfully");
+  logger.development("Fingerprint saved successfully");
   res.send("Fingerprint saved successfully");
 });
 
@@ -161,7 +212,7 @@ app.get("/progress", async (req, res) => {
 
 app.get("/fingerprintCount/:fingerprinthash", async (req, res) => {
   const fingerprinthash = req.params.fingerprinthash;
-  console.log(
+  logger.development(
     `Received request for fingerprint count of hash: ${fingerprinthash}`
   );
   const fingerprint = await Fingerprint.findOne({
@@ -169,12 +220,12 @@ app.get("/fingerprintCount/:fingerprinthash", async (req, res) => {
   });
   if (fingerprint) {
     const createdCanvasCount = fingerprint.canvases.length;
-    console.log(
+    logger.development(
       `Count of created canvas fingerprints for hash ${fingerprinthash}: ${createdCanvasCount}`
     );
     res.json({ count: createdCanvasCount });
   } else {
-    console.log(`No fingerprint found for hash ${fingerprinthash}`);
+    logger.development(`No fingerprint found for hash ${fingerprinthash}`);
     res.status(404).json({ error: "Fingerprint not found" });
   }
 });
@@ -182,18 +233,18 @@ app.get("/fingerprintCount/:fingerprinthash", async (req, res) => {
 app.post("/fingerprint", async (req, res) => {
   const { fingerprint, fingerprintHash } = req.body;
 
-  console.log(`Received fingerprint: ${fingerprint}`);
-  console.log(`Received fingerprintHash: ${fingerprintHash}`);
+  logger.development(`Received fingerprint: ${fingerprint}`);
+  logger.development(`Received fingerprintHash: ${fingerprintHash}`);
 
   if (!fingerprint || !fingerprintHash) {
-    console.log("Missing fingerprint or fingerprintHash in request body");
+    logger.warn("Missing fingerprint or fingerprintHash in request body");
     return res.status(400).send("Missing fingerprint or fingerprintHash");
   }
 
   const existingFingerprint = await Fingerprint.findOne({ fingerprintHash });
 
   if (existingFingerprint) {
-    console.log("Fingerprint already exists in the database");
+    logger.info("Fingerprint already exists in the database");
 
     // Senden Sie eine Challenge an den Benutzer
     res.json({
@@ -204,7 +255,7 @@ app.post("/fingerprint", async (req, res) => {
       username: existingFingerprint.username,
     });
   } else {
-    console.log(
+    logger.warn(
       "Fingerprint does not exist in the database, creating a new one"
     );
 
@@ -228,7 +279,7 @@ app.post("/fingerprint", async (req, res) => {
 
     await newFingerprint.save();
 
-    console.log("New fingerprint saved successfully");
+    logger.info("New fingerprint saved successfully");
 
     res.json({
       message: "Fingerprint saved successfully",
@@ -245,19 +296,19 @@ app.get("/model-status", async (req, res) => {
   if (!username) {
       return res.status(400).json({ error: "Username is required" });
   }
-  console.log("Getting model status request for user with username:", username);
+  logger.development("Getting model status request for user with username:", username);
   const modelExists = await doesModelExist(username);
-  console.log(`Returning to Frontend: ${modelExists}`);
+  logger.development(`Returning to Frontend: ${modelExists}`);
   res.json({ exists: modelExists });
 });
 
 // Endpunkt zum Erstellen von Modellen
 app.post("/create-model", async (req, res) => {
   const username = req.body.username;
-  console.log(`Creating model for user: ${username}`);
+  logger.info(`Creating model for user: ${username}`);
   const modelExists = await doesModelExist(username);
   if (modelExists) {
-      console.log("Models already exist, please check index.js");
+    logger.info("Models already exist, please check index.js");
       return res.status(400).json({ error: "Models already exist" });
   }
   const command = `python src/SWAT_auth/train_model.py ${username}`;
@@ -268,7 +319,7 @@ app.post("/create-model", async (req, res) => {
       res.write(JSON.stringify({ progress: data }));
   });
   process.stderr.on("data", (data) => {
-      console.error(`stderr: ${data}`);
+      logger.error(`stderr: ${data}`);
   });
   process.on("close", (code) => {
       if (code === 0) {
@@ -287,10 +338,10 @@ app.post("/verify-challenge", async (req, res, next) => {
       .send("Missing fingerprint or username in request body");
   }
 
-  console.log(
+  logger.info(
     `Received Prediction request for user ${username}: ${fingerprint}`
   );
-  console.log("Checking if Python Server is running for Endpoint /predict");
+  logger.info("Checking if Python Server is running for Endpoint /predict");
   // Überprüfen, ob der ML-Server läuft
   try {
     const mlServerResponse = await axios.get("http://127.0.0.1:5000/status");
@@ -298,13 +349,13 @@ app.post("/verify-challenge", async (req, res, next) => {
       console.error("ML server is not running");
       return res.status(500).send("ML server is not running");
     }
-    console.log("ML server is running");
+    logger.info("ML server is running");
   } catch (error) {
     console.error("Error checking ML server status:", error);
     return res.status(500).send("ML Server is not running");
   }
 
-  console.log("Continue with /predict Endpoint");
+  logger.info("Continue with /predict Endpoint");
   try {
     const response = await axios.post("http://127.0.0.1:5000/predict", {
       fingerprint,
@@ -326,8 +377,8 @@ async function areAllFingerprintsCollected(fingerprintHash) {
 }
 
 async function runPythonScript(username) {
-  console.log(`Running Python script for user: ${username}`);
-  console.log("WARNING TRAINING MODEL WILL BE STARTED!");
+  logger.info(`Running Python script for user: ${username}`);
+  logger.info("WARNING TRAINING MODEL WILL BE STARTED!");
   return new Promise((resolve, reject) => {
     const command = `python src/SWAT_auth/train_model.py ${username}`;
     exec(command, (error, stdout, stderr) => {
@@ -364,9 +415,9 @@ for (let devName in interfaces) {
 }
 
 http.createServer(app).listen(80, () => {
-  console.log(`HTTP Server is accessible on http://${serverIP}:80`);
+  logger.info(`HTTP Server is accessible on http://${serverIP}:80`);
 });
 
 https.createServer(credentials, app).listen(443, () => {
-  console.log(`HTTPS Server is accessible on https://${serverIP}:443`);
+  logger.info(`HTTPS Server is accessible on https://${serverIP}:443`);
 });
