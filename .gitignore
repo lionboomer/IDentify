@@ -95,5 +95,6 @@ tf-gpu/
 # Ignore testing directory
 testing/
 
+# Ignore fingerprintDB.fingerprints.json
 src/fingerprintDB.fingerprints.json
 
