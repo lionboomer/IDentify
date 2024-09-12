@@ -13,7 +13,9 @@
     "@tensorflow/tfjs": "^4.17.0",
     "@tensorflow/tfjs-node": "^4.17.0",
     "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
     "express": "^4.19.2",
+    "gridfs-stream": "^1.1.1",
     "mongoose": "^8.2.3",
     "winston": "^3.12.0"
   },

@@ -11,6 +11,8 @@ const axios = require("axios");
 const { exit } = require("process");
 const { exec } = require("child_process");
 const winston = require('winston');
+const bcrypt = require('bcrypt');
+
 // Funktion zum Überprüfen, ob alle 6 Modelle existieren
 
 // Definieren Sie benutzerdefinierte Log-Level
@@ -101,18 +103,35 @@ async function connectDB() {
 
 connectDB();
 
-// Weitere Anwendungslogik folgt...
+const CanvasSampleSchema = new mongoose.Schema({
+  fingerprintId: { type: mongoose.Schema.Types.ObjectId, ref: 'Fingerprint' },
+  sampleData: String,
+  createdAt: { type: Date, default: Date.now }
+});
 
 const FingerprintSchema = new mongoose.Schema({
   fingerprint: String,
   fingerprintHash: { type: String, unique: true },
-  name: String,
   username: { type: String, unique: true },
-  canvases: [String],
+  password: { type: String, required: true },
+  name: String,
+  deviceName: String,
+  operatingSystem: String,
+  browser: String,
+  canvasSampleCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
+  lastLogin: { type: Date },
+});
+
+FingerprintSchema.pre('save', async function(next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
 });
 
 const Fingerprint = mongoose.model("Fingerprint", FingerprintSchema);
+const CanvasSample = mongoose.model("CanvasSample", CanvasSampleSchema);
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
@@ -162,19 +181,27 @@ app.post("/fingerprints", async (req, res) => {
     return res.status(400).send("Missing fingerprint");
   }
 
-  // Entferne den Präfix "data:image/png;base64," vom Fingerprint
   const cleanedFingerprint = fingerprint.replace(/^data:image\/\w+;base64,/, "");
 
   let fingerprintRecord = await Fingerprint.findOne({ fingerprintHash });
   if (!fingerprintRecord) {
     logger.warn("No fingerprint record found, creating a new one");
-    fingerprintRecord = new Fingerprint({ fingerprintHash, canvases: [] });
+    fingerprintRecord = new Fingerprint({ fingerprintHash });
+    await fingerprintRecord.save();
   }
 
-  if (fingerprintRecord.canvases.length < 1900) {
-    logger.development("Adding new fingerprint to canvases array");
-    fingerprintRecord.canvases.push(fingerprint);
-    const progress = (fingerprintRecord.canvases.length / 1900) * 100;
+  if (fingerprintRecord.canvasSampleCount < 100000) {
+    logger.development("Adding new fingerprint to CanvasSample collection");
+    const newCanvasSample = new CanvasSample({
+      fingerprintId: fingerprintRecord._id,
+      sampleData: cleanedFingerprint
+    });
+    await newCanvasSample.save();
+
+    fingerprintRecord.canvasSampleCount += 1;
+    await fingerprintRecord.save();
+
+    const progress = (fingerprintRecord.canvasSampleCount / 100000) * 100;
 
     const currentTime = Date.now();
     if (currentTime - progressLastTime >= 200) {
@@ -183,14 +210,12 @@ app.post("/fingerprints", async (req, res) => {
       progressLastTime = currentTime;
     }
   } else {
-    logger.warn("Canvases array is full");
-    return res.status(400).send("Canvases array is full");
+    logger.warn("Canvas sample limit reached");
+    return res.status(400).send("Canvas sample limit reached");
   }
 
-  logger.development("Saving fingerprint record");
-  await fingerprintRecord.save();
-  logger.development("Fingerprint saved successfully");
-  res.send("Fingerprint saved successfully");
+  logger.development("Fingerprint sample saved successfully");
+  res.send("Fingerprint sample saved successfully");
 });
 
 app.get("/progress", async (req, res) => {
@@ -203,8 +228,7 @@ app.get("/progress", async (req, res) => {
     fingerprintHash: fingerprintHash,
   });
   if (fingerprint) {
-    const count = fingerprint.canvases ? fingerprint.canvases.length : 0;
-    const progress = count >= 1900 ? 100 : (count / 1900) * 100;
+    const progress = fingerprint.canvasSampleCount >= 100000 ? 100 : (fingerprint.canvasSampleCount / 100000) * 100;
     res.json({ progress });
   } else {
     res.status(404).json({ error: "Fingerprint not found" });
@@ -214,42 +238,53 @@ app.get("/progress", async (req, res) => {
 app.get("/fingerprintCount/:fingerprinthash", async (req, res) => {
   const fingerprinthash = req.params.fingerprinthash;
   logger.development(
-    `Received request for fingerprint count of hash: ${fingerprinthash}`
+    `Empfangene Anfrage für Fingerabdruck-Zählung des Hashes: ${fingerprinthash}`
   );
   const fingerprint = await Fingerprint.findOne({
     fingerprintHash: fingerprinthash,
   });
   if (fingerprint) {
-    const createdCanvasCount = fingerprint.canvases.length;
+    const createdCanvasCount = fingerprint.canvasSampleCount;
     logger.development(
-      `Count of created canvas fingerprints for hash ${fingerprinthash}: ${createdCanvasCount}`
+      `Anzahl der erstellten Canvas-Fingerabdrücke für Hash ${fingerprinthash}: ${createdCanvasCount}`
     );
     res.json({ count: createdCanvasCount });
   } else {
-    logger.development(`No fingerprint found for hash ${fingerprinthash}`);
-    res.status(404).json({ error: "Fingerprint not found" });
+    logger.development(`Kein Fingerabdruck gefunden für Hash ${fingerprinthash}`);
+    res.status(404).json({ error: "Fingerabdruck nicht gefunden" });
   }
 });
 
 app.post("/fingerprint", async (req, res) => {
-  const { fingerprint, fingerprintHash } = req.body;
+  const { fingerprint, fingerprintHash, deviceName, operatingSystem } = req.body;
 
-  logger.development(`Received fingerprint: ${fingerprint}`);
-  logger.development(`Received fingerprintHash: ${fingerprintHash}`);
+  logger.development(`Empfangener Fingerabdruck: ${fingerprint}`);
+  logger.development(`Empfangener Fingerabdruck-Hash: ${fingerprintHash}`);
+  logger.development(`Empfangener Gerätename: ${deviceName}`);
+  logger.development(`Empfangenes Betriebssystem: ${operatingSystem}`);
 
   if (!fingerprint || !fingerprintHash) {
-    logger.warn("Missing fingerprint or fingerprintHash in request body");
-    return res.status(400).send("Missing fingerprint or fingerprintHash");
+    logger.warn("Fehlender Fingerabdruck oder Fingerabdruck-Hash im Anfragekörper");
+    return res.status(400).send("Fehlender Fingerabdruck oder Fingerabdruck-Hash");
   }
 
   const existingFingerprint = await Fingerprint.findOne({ fingerprintHash });
 
   if (existingFingerprint) {
-    logger.info("Fingerprint already exists in the database");
+    logger.info("Fingerabdruck existiert bereits in der Datenbank");
 
-    // Senden Sie eine Challenge an den Benutzer
+    // Aktualisieren Sie die Geräteinformationen, falls sie sich geändert haben
+    if (deviceName && deviceName !== existingFingerprint.deviceName) {
+      existingFingerprint.deviceName = deviceName;
+    }
+    if (operatingSystem && operatingSystem !== existingFingerprint.operatingSystem) {
+      existingFingerprint.operatingSystem = operatingSystem;
+    }
+    await existingFingerprint.save();
+
+    // Senden Sie eine Herausforderung an den Benutzer
     res.json({
-      message: "Fingerprint recognized. Please complete the challenge.",
+      message: "Fingerabdruck erkannt. Bitte vervollständigen Sie die Herausforderung.",
       challenge: true,
       id: existingFingerprint._id,
       name: existingFingerprint.name,
@@ -257,18 +292,18 @@ app.post("/fingerprint", async (req, res) => {
     });
   } else {
     logger.warn(
-      "Fingerprint does not exist in the database, creating a new one"
+      "Fingerabdruck existiert nicht in der Datenbank, erstelle einen neuen"
     );
 
     let count = await Fingerprint.countDocuments();
-    let name = `User ${count + 1}`;
-    let username = `username_${count + 1}`;
+    let name = `Benutzer ${count + 1}`;
+    let username = `benutzername_${count + 1}`;
 
     // Sicherstellen, dass der Benutzername eindeutig ist
     while (await Fingerprint.findOne({ username })) {
       count++;
-      name = `User ${count + 1}`;
-      username = `username_${count + 1}`;
+      name = `Benutzer ${count + 1}`;
+      username = `benutzername_${count + 1}`;
     }
 
     const newFingerprint = new Fingerprint({
@@ -276,14 +311,16 @@ app.post("/fingerprint", async (req, res) => {
       fingerprintHash,
       name,
       username,
+      deviceName,
+      operatingSystem,
     });
 
     await newFingerprint.save();
 
-    logger.info("New fingerprint saved successfully");
+    logger.info("Neuer Fingerabdruck erfolgreich gespeichert");
 
     res.json({
-      message: "Fingerprint saved successfully",
+      message: "Fingerabdruck erfolgreich gespeichert",
       id: newFingerprint._id,
       name,
       username,

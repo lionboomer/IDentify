@@ -5,6 +5,9 @@ import * as webglFp from "./webgl.js";
 let GlobalfingerprintHash;
 let username;
 let localProgress = 0; // Variable zur Speicherung des lokalen Fortschritts
+let deviceName = '';
+let operatingSystem = '';
+
 
 const hashFuntion = async (fingerprint) => {
   const hash = await crypto.subtle.digest(
@@ -80,42 +83,43 @@ async function sendFingerprint() {
   const { fingerprint, fingerprintHash } = await generateFingerprint();
 
   if (!fingerprint || !fingerprintHash) {
-    throw new Error("Fingerprint or fingerprintHash is null");
+    throw new Error("Fingerprint oder fingerprintHash ist null");
   }
 
   // Send the fingerprint to the server
-  fetch("/fingerprint", {
+  const response = await fetch("/fingerprint", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ fingerprint, fingerprintHash }), // Add username here
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      if (
-        data.message ===
-        "Fingerprint recognized. Please complete the challenge."
-      ) {
-        alert(
-          `Fingerprint recognized. Please complete the challenge. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`
-        ); // Add username here
-        // Call the function to handle the challenge
-        handleChallenge();
-      } else {
-        alert(
-          `Fingerprint saved. ID: ${data.id}, Name: ${data.name}, Username: ${data.username}`
-        ); // Add username here
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+    body: JSON.stringify({ 
+      fingerprint, 
+      fingerprintHash,
+      deviceName,
+      operatingSystem
+    }),
+  });
+
+  const data = await response.json();
+  console.log(data);
+  if (
+    data.message ===
+    "Fingerprint erkannt. Bitte vervollständigen Sie die Herausforderung."
+  ) {
+    alert(
+      `Fingerprint erkannt. Bitte vervollständigen Sie die Herausforderung. ID: ${data.id}, Name: ${data.name}, Benutzername: ${data.username}`
+    );
+    // Call the function to handle the challenge
+    handleChallenge();
+  } else {
+    alert(
+      `Fingerprint gespeichert. ID: ${data.id}, Name: ${data.name}, Benutzername: ${data.username}`
+    );
+  }
 
   // Now you can use fingerprintHash
   const hash_h1 = document.getElementById("fingerprint-hash");
-  hash_h1.textContent = `unique Id: ${fingerprintHash}`;
+  hash_h1.textContent = `Eindeutige ID: ${fingerprintHash}`;
 
   // Call the function to populate the table
   populateTable(fingerprint);
@@ -160,6 +164,7 @@ async function sendFingerprintToServer(fingerprint, fingerprintHash) {
   }
 }
 
+
 // Function to handle the challenge
 async function handleChallenge() {
   const newFingerprint = canvasFp.generateCanvasFingerprint();
@@ -186,6 +191,18 @@ async function handleChallenge() {
     verificationStatus.style.color = "red";
   }
 }
+
+function showDeviceInfoForm() {
+  document.getElementById('device-info-form').style.display = 'block';
+}
+
+document.getElementById('device-form').addEventListener('submit', function(event) {
+  event.preventDefault();
+  deviceName = document.getElementById('device-name').value;
+  operatingSystem = document.getElementById('operating-system').value;
+  document.getElementById('device-info-form').style.display = 'none';
+  runFunctionsSequentially();
+});
 
 // Function to generate a random canvas with text
 function generateRandomCanvas(txt) {
@@ -277,7 +294,7 @@ async function generateRequiredCanvasFingerprints(fingerprintHash) {
   const existingFingerprintsCount = data.count;
   console.log(`Existing fingerprints count: ${existingFingerprintsCount}`);
 
-  const fingerprintsToGenerate = 1900 - existingFingerprintsCount;
+  const fingerprintsToGenerate = 100000 - existingFingerprintsCount;
   console.log(`Fingerprints to generate: ${fingerprintsToGenerate}`);
 
   const fingerprints = await generateCanvasFingerprints(fingerprintsToGenerate);
