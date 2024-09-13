@@ -86,35 +86,41 @@ async function sendFingerprint() {
     throw new Error("Fingerprint oder fingerprintHash ist null");
   }
 
+  // Check if the fingerprint already exists
+  const response = await fetch(`/get-username?fingerprintHash=${fingerprintHash}`);
+  const data = await response.json();
+
+  let deviceName = "";
+  let operatingSystem = "";
+
+  if (!data.username) {
+    // Ask for device name and operating system if fingerprint is not recognized
+    deviceName = prompt("Bitte geben Sie den Gerätenamen ein:");
+    operatingSystem = prompt("Bitte geben Sie das Betriebssystem ein:");
+  }
+
   // Send the fingerprint to the server
-  const response = await fetch("/fingerprint", {
+  const saveResponse = await fetch("/fingerprint", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ 
-      fingerprint, 
+    body: JSON.stringify({
+      fingerprint,
       fingerprintHash,
       deviceName,
       operatingSystem
     }),
   });
 
-  const data = await response.json();
-  console.log(data);
-  if (
-    data.message ===
-    "Fingerprint erkannt. Bitte vervollständigen Sie die Herausforderung."
-  ) {
-    alert(
-      `Fingerprint erkannt. Bitte vervollständigen Sie die Herausforderung. ID: ${data.id}, Name: ${data.name}, Benutzername: ${data.username}`
-    );
+  const saveData = await saveResponse.json();
+  console.log(saveData);
+  if (saveData.message === "Fingerprint erkannt. Bitte vervollständigen Sie die Herausforderung.") {
+    alert(`Fingerprint erkannt. Bitte vervollständigen Sie die Herausforderung. ID: ${saveData.id}, Name: ${saveData.name}, Benutzername: ${saveData.username}`);
     // Call the function to handle the challenge
     handleChallenge();
   } else {
-    alert(
-      `Fingerprint gespeichert. ID: ${data.id}, Name: ${data.name}, Benutzername: ${data.username}`
-    );
+    alert(`Fingerprint gespeichert. ID: ${saveData.id}, Name: ${saveData.name}, Benutzername: ${saveData.username}`);
   }
 
   // Now you can use fingerprintHash
@@ -164,7 +170,6 @@ async function sendFingerprintToServer(fingerprint, fingerprintHash) {
   }
 }
 
-
 // Function to handle the challenge
 async function handleChallenge() {
   const newFingerprint = canvasFp.generateCanvasFingerprint();
@@ -193,10 +198,22 @@ async function handleChallenge() {
 }
 
 function showDeviceInfoForm() {
-  document.getElementById('device-info-form').style.display = 'block';
+  const deviceInfoForm = document.getElementById('device-info-form');
+  deviceInfoForm.style.display = 'block';
+
+  // Stellen Sie sicher, dass beide Felder im Formular vorhanden sind
+  const deviceNameInput = document.getElementById('device-name');
+  const operatingSystemInput = document.getElementById('operating-system');
+
+  if (deviceNameInput && operatingSystemInput) {
+    deviceInfoForm.appendChild(deviceNameInput);
+    deviceInfoForm.appendChild(operatingSystemInput);
+  } else {
+    console.error("Eingabefelder für Gerätename und Betriebssystem nicht gefunden.");
+  }
 }
 
-document.getElementById('device-form').addEventListener('submit', function(event) {
+document.getElementById('device-form').addEventListener('submit', function (event) {
   event.preventDefault();
   deviceName = document.getElementById('device-name').value;
   operatingSystem = document.getElementById('operating-system').value;
@@ -304,8 +321,7 @@ async function generateRequiredCanvasFingerprints(fingerprintHash) {
   progressBar.value = existingFingerprintsCount + fingerprints.length;
 
   console.log(
-    `Generated ${fingerprints.length} new fingerprints. Total: ${
-      existingFingerprintsCount + fingerprints.length
+    `Generated ${fingerprints.length} new fingerprints. Total: ${existingFingerprintsCount + fingerprints.length
     } of 20`
   );
 }
@@ -378,23 +394,23 @@ async function predictFingerprint(username, fingerprint) {
   console.log("Predicting fingerprint for username:", username);
   console.log("Fingerprint:", fingerprint);
   try {
-      const response = await fetch("http://localhost:5000/predict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, fingerprint }),
-      });
-      console.log("Response status:", response.status);
-      if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Error predicting fingerprint:", errorText);
-          throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("Prediction data:", data);
-      return data;
+    const response = await fetch("http://localhost:5000/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, fingerprint }),
+    });
+    console.log("Response status:", response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error predicting fingerprint:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log("Prediction data:", data);
+    return data;
   } catch (error) {
-      console.error("Error in predictFingerprint:", error);
-      throw error;
+    console.error("Error in predictFingerprint:", error);
+    throw error;
   }
 }
 
@@ -579,17 +595,17 @@ async function checkAndCreateModel() {
 
 async function exampleUsage() {
   try {
-      let txt = Math.random().toString(36).substring(2);
-      let fingerprint = generateRandomCanvas(txt);
-      console.log("Generated fingerprint:", fingerprint);
+    let txt = Math.random().toString(36).substring(2);
+    let fingerprint = generateRandomCanvas(txt);
+    console.log("Generated fingerprint:", fingerprint);
 
-      const username = await getUsernameByFingerprintHash(GlobalfingerprintHash);
-      const predictionData = await predictFingerprint(username, fingerprint);
-      console.log("Prediction result:", predictionData);
+    const username = await getUsernameByFingerprintHash(GlobalfingerprintHash);
+    const predictionData = await predictFingerprint(username, fingerprint);
+    console.log("Prediction result:", predictionData);
 
-      displayPredictionResults(predictionData);
+    displayPredictionResults(predictionData);
   } catch (error) {
-      console.error("Error in exampleUsage:", error);
+    console.error("Error in exampleUsage:", error);
   }
 }
 
@@ -603,7 +619,7 @@ function displayPredictionResults(data) {
   const modelDropdown = document.getElementById("model-dropdown");
 
   if (!resultElement || !individualPredictionsElement || !modelDropdown) {
-      throw new Error("Element with ID 'verification-status', 'individual-predictions', or 'model-dropdown' not found in the DOM");
+    throw new Error("Element with ID 'verification-status', 'individual-predictions', or 'model-dropdown' not found in the DOM");
   }
 
   const averagePrediction = data.average_prediction;
@@ -612,11 +628,11 @@ function displayPredictionResults(data) {
 
   // Anzeige der Mehrheitsentscheidung
   if (majorityVote === 1) {
-      resultElement.textContent = `Fingerprint authentication successful with an average confidence of ${averagePrediction.toFixed(2)}`;
-      resultElement.style.color = "green";
+    resultElement.textContent = `Fingerprint authentication successful with an average confidence of ${averagePrediction.toFixed(2)}`;
+    resultElement.style.color = "green";
   } else {
-      resultElement.textContent = `Fingerprint authentication failed with an average confidence of ${averagePrediction.toFixed(2)}`;
-      resultElement.style.color = "red";
+    resultElement.textContent = `Fingerprint authentication failed with an average confidence of ${averagePrediction.toFixed(2)}`;
+    resultElement.style.color = "red";
   }
 
   // Anzeige der individuellen Vorhersagen
@@ -624,30 +640,30 @@ function displayPredictionResults(data) {
   modelDropdown.innerHTML = ""; // Clear existing options
 
   individualPredictions.forEach(prediction => {
-      const predictionItem = document.createElement("li");
+    const predictionItem = document.createElement("li");
 
-      const modelName = document.createElement("span");
-      modelName.className = "model-name";
-      // Extrahiere den Modellnamen ohne Pfad und Dateierweiterung
-      const modelNameText = prediction.model.split('/').pop().replace('.h5', '');
-      modelName.textContent = modelNameText;
+    const modelName = document.createElement("span");
+    modelName.className = "model-name";
+    // Extrahiere den Modellnamen ohne Pfad und Dateierweiterung
+    const modelNameText = prediction.model.split('/').pop().replace('.h5', '');
+    modelName.textContent = modelNameText;
 
-      const predictionValue = document.createElement("span");
-      predictionValue.className = "prediction-value";
-      predictionValue.textContent = prediction.prediction.toFixed(2);
-      if (prediction.prediction < 0.5) {
-          predictionValue.classList.add("failed");
-      }
+    const predictionValue = document.createElement("span");
+    predictionValue.className = "prediction-value";
+    predictionValue.textContent = prediction.prediction.toFixed(2);
+    if (prediction.prediction < 0.5) {
+      predictionValue.classList.add("failed");
+    }
 
-      predictionItem.appendChild(modelName);
-      predictionItem.appendChild(predictionValue);
-      individualPredictionsElement.appendChild(predictionItem);
+    predictionItem.appendChild(modelName);
+    predictionItem.appendChild(predictionValue);
+    individualPredictionsElement.appendChild(predictionItem);
 
-      // Dropdown-Option hinzufügen
-      const option = document.createElement("option");
-      option.value = modelNameText;
-      option.textContent = modelNameText;
-      modelDropdown.appendChild(option);
+    // Dropdown-Option hinzufügen
+    const option = document.createElement("option");
+    option.value = modelNameText;
+    option.textContent = modelNameText;
+    modelDropdown.appendChild(option);
   });
 
   // Zeige das Haupt-Element an

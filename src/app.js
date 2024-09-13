@@ -11,7 +11,7 @@ const axios = require("axios");
 const { exit } = require("process");
 const { exec } = require("child_process");
 const winston = require('winston');
-const bcrypt = require('bcrypt');
+//const bcrypt = require('bcrypt');
 
 // Funktion zum Überprüfen, ob alle 6 Modelle existieren
 
@@ -113,7 +113,6 @@ const FingerprintSchema = new mongoose.Schema({
   fingerprint: String,
   fingerprintHash: { type: String, unique: true },
   username: { type: String, unique: true },
-  password: { type: String, required: true },
   name: String,
   deviceName: String,
   operatingSystem: String,
@@ -123,12 +122,12 @@ const FingerprintSchema = new mongoose.Schema({
   lastLogin: { type: Date },
 });
 
-FingerprintSchema.pre('save', async function(next) {
-  if (this.isModified('password')) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-  next();
-});
+//FingerprintSchema.pre('save', async function(next) {
+  //if (this.isModified('password')) {
+    //this.password = await bcrypt.hash(this.password, 10);
+  //}
+  //next();
+//});
 
 const Fingerprint = mongoose.model("Fingerprint", FingerprintSchema);
 const CanvasSample = mongoose.model("CanvasSample", CanvasSampleSchema);
