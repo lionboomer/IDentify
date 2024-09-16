@@ -602,3 +602,95 @@ pre {
     border: 1px solid #ddd;
     font-size: 1em;
 }
+
+/* Stil für das Formular und den Button */
+#stats-form {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+#stats-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+#stats-form label,
+#stats-form input,
+#stats-form button {
+  margin: 10px 0;
+}
+
+#stats-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#stats-form button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 2px;
+  transition-duration: 0.4s;
+}
+
+#stats-form button:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid #4CAF50;
+}
+
+/* Stil für den Button */
+#open-stats-page {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 2px;
+  transition-duration: 0.4s;
+}
+
+#open-stats-page:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid #4CAF50;
+}
+
+/* Stil für den Container */
+#stats-container {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+#stats-content p {
+  margin: 10px 0;
+}
+
+#canvas-display img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 20px;
+}
+.main-title {
+    font-size: 2.5em;
+    color: #003366;
+    text-align: center;
+    margin-top: 20px;
+  }

@@ -12,6 +12,10 @@
   </head>
   <body>
     <header class="header">
+      <h1>Fingerprint App</h1>
+      <label for="username">Benutzername:</label>
+      <input type="text" id="username" name="username">
+      <button id="submit-button">Absenden</button>
       <h1>Welcome to KOBIL</h1>
       <p>Identity and Beyond: Discover the KOBIL SuperApp Platform</p>
       <nav>
@@ -93,6 +97,26 @@
         </div>
       </details>
     <script type="module" src="index.js"></script>
+    <!-- Button to open the user statistics page -->
+    <button id="open-stats-page">Benutzerstatistiken anzeigen</button>
+
+    <!-- User statistics form -->
+    <div id="stats-form" style="display: none;">
+      <form id="user-stats-form">
+        <label for="username">Benutzername:</label>
+        <input type="text" id="stats-username" name="username" required>
+        <button type="submit">Statistiken anzeigen</button>
+      </form>
+    </div>
+
+    <!-- Container to display the statistics -->
+    <div id="stats-container" style="display: none;">
+      <h2>Statistiken für <span id="stats-username-display"></span></h2>
+      <div id="stats-content"></div>
+      <label for="canvas-dropdown">Canvas-Samples:</label>
+      <select id="canvas-dropdown"></select>
+      <div id="canvas-display"></div>
+    </div>
     <main>
       <section id="superapp">
         <h2>Discover SuperApp Solutions</h2>
@@ -217,6 +241,6 @@
     <footer>
       <p>&copy; 2024 KOBIL. All rights reserved.</p>
     </footer>
-    <script type="module" src="index.js"></script>
+    </div>
   </body>
 </html>

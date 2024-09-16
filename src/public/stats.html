@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benutzerstatistiken</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1 class="main-title">Benutzerstatistiken</h1>
+  </header>
+  <main>
+    <!-- Benutzerstatistik-Formular -->
+    <div id="stats-form">
+      <form id="user-stats-form">
+        <label for="username">Benutzername:</label>
+        <input type="text" id="stats-username" name="username" required>
+        <button type="submit">Statistiken anzeigen</button>
+      </form>
+    </div>
+
+    <!-- Container zur Anzeige der Statistiken -->
+    <div id="stats-container" style="display: none;">
+      <h2>Statistiken für <span id="stats-username-display"></span></h2>
+      <div id="stats-content"></div>
+      <label for="canvas-dropdown">Canvas-Samples:</label>
+      <select id="canvas-dropdown"></select>
+      <div id="canvas-display"></div>
+    </div>
+  </main>
+  <script src="stats.js"></script>
+</body>
+</html>

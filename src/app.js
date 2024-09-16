@@ -77,6 +77,8 @@ async function doesModelExist(username) {
 }
 
 
+
+
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
@@ -402,6 +404,37 @@ app.post("/verify-challenge", async (req, res, next) => {
     res.json({ prediction: result });
   } catch (error) {
     next(error);
+  }
+});
+
+app.get('/user-stats', async (req, res) => {
+  const username = req.query.username;
+  if (!username) {
+    return res.status(400).send('Benutzername ist erforderlich');
+  }
+
+  try {
+    const user = await Fingerprint.findOne({ username }).populate('canvasSamples');
+    if (!user) {
+      return res.status(404).send('Benutzer nicht gefunden');
+    }
+
+    const fingerprintCount = user.canvasSamples.length;
+    const lastActivity = user.lastLogin; // Beispiel: Anpassen je nach Datenstruktur
+    const deviceName = user.deviceName;
+    const operatingSystem = user.operatingSystem;
+    const canvasSamples = user.canvasSamples.map(sample => sample.sampleData);
+
+    res.json({
+      fingerprintCount,
+      lastActivity,
+      deviceName,
+      operatingSystem,
+      canvasSamples
+    });
+  } catch (error) {
+    logger.error('Fehler beim Abrufen der Benutzerstatistiken:', error);
+    res.status(500).send('Interner Serverfehler');
   }
 });
 

@@ -1,3 +1,4 @@
+  
 import * as bsf from "./fingerprint.js";
 import * as canvasFp from "./canvas.js";
 import * as webglFp from "./webgl.js";
@@ -684,6 +685,52 @@ async function runFunctionsSequentially() {
   }
 }
 
+// Show the stats form when the button is clicked
+// Redirect to the stats page when the button is clicked
+document.getElementById('open-stats-page').addEventListener('click', function() {
+  window.location.href = 'stats.html';
+});
+
+// Handle the form submission
+document.getElementById('user-stats-form').addEventListener('submit', async function(event) {
+  event.preventDefault();
+  const username = document.getElementById('stats-username').value;
+  const statsContainer = document.getElementById('stats-container');
+  const statsContent = document.getElementById('stats-content');
+  const statsUsernameDisplay = document.getElementById('stats-username-display');
+  const canvasDropdown = document.getElementById('canvas-dropdown');
+  const canvasDisplay = document.getElementById('canvas-display');
+
+  // Fetch the statistics from the server
+  const response = await fetch(`/user-stats?username=${encodeURIComponent(username)}`);
+  const data = await response.json();
+
+  // Display the statistics
+  statsUsernameDisplay.textContent = username;
+  statsContent.innerHTML = `
+    <p>Anzahl der Fingerabdrücke: ${data.fingerprintCount}</p>
+    <p>Letzte Aktivität: ${data.lastActivity}</p>
+    <p>Gerätename: ${data.deviceName}</p>
+    <p>Betriebssystem: ${data.operatingSystem}</p>
+  `;
+
+  // Populate the canvas dropdown
+  canvasDropdown.innerHTML = '';
+  data.canvasSamples.forEach((sample, index) => {
+    const option = document.createElement('option');
+    option.value = sample;
+    option.textContent = `Canvas Sample ${index + 1}`;
+    canvasDropdown.appendChild(option);
+  });
+
+  // Display the selected canvas sample
+  canvasDropdown.addEventListener('change', function() {
+    const selectedSample = canvasDropdown.value;
+    canvasDisplay.innerHTML = `<img src="data:image/png;base64,${selectedSample}" alt="Canvas Sample">`;
+  });
+
+  statsContainer.style.display = 'block';
+});
 
 async function fetchWithErrorHandling(url, options) {
   try {
