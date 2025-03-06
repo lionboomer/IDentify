@@ -7,6 +7,7 @@ Willkommen bei **IDentify**! Dieses Projekt verbessert die Sicherheit von Webanw
 
 ---
 
+
 ## 🌟 Einführung
 
 **IDentify** nutzt das HTML5-Canvas-Element, um einzigartige digitale Fingerabdrücke zu erstellen. Diese Technik ergänzt traditionelle Authentifizierungsmethoden und verbessert die Benutzerfreundlichkeit.
@@ -41,6 +42,8 @@ Willkommen bei **IDentify**! Dieses Projekt verbessert die Sicherheit von Webanw
 ## 🔮 Weitere Informationen
 
 Für detaillierte Einblicke in Methodik, Ergebnisse und zukünftige Arbeiten lies die [Masterarbeit (PDF)](./Masterarbeit_IEEE.pdf) oder [Artikelstil-Version (PDF)](./Masterarbeit_Article.pdf).
+
+📂 Zusätzlich findest du weitere Details zu mir und meinem beruflichen Hintergrund hier: [Lion Witte](./Info_Lion.md).  
 
 ---
 
@@ -88,9 +91,13 @@ Welcome to **IDentify**! This project enhances web application security by lever
 
 For detailed insights into methodology, results, and future work, refer to the [Master's Thesis (PDF)](./Masterarbeit_IEEE.pdf) or [Article Style Version (PDF)](./Masterarbeit_Article.pdf).
 
+📂 Additionally, you can find more details about me and my professional background here: [Lion Witte](./Info_Lion.md).  
+
+
+
 ---
 
 ## 📬 Kontakt / Contact
 
-Für Fragen oder weitere Informationen: [lion.witte@kobil.com](mailto:lion.witte@kobil.com)  
-For inquiries or further information: [lion.witte@kobil.com](mailto:lion.witte@kobil.com)
+Für Fragen oder weitere Informationen: [lion.witte@kobil.com](mailto:lion@witte-maler.de)  
+For inquiries or further information: [lion.witte@kobil.com](mailto:lion@witte-maler.de)
