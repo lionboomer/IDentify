@@ -1,39 +1,96 @@
 # 🎉 IDentify: Revolutionizing Web Application Security with Canvas Fingerprinting 🎨
 
-Willkommen bei **IDentify**! Dieses Projekt hat erfolgreich die Sicherheit von Webanwendungen durch die Implementierung und Optimierung der Canvas Fingerprinting-Technik verbessert. Es bildet die Grundlage meiner Masterarbeit, die sich darauf konzentriert, die Modelle und Techniken weiter zu verfeinern und zu erweitern.
+Willkommen bei **IDentify**! Dieses Projekt verbessert die Sicherheit von Webanwendungen durch den Einsatz von Canvas Fingerprinting und Machine Learning. Es basiert auf meiner Masterarbeit, die in zwei Formaten verfügbar ist:
+
+- 📄 [IEEE-Standardversion](./M_Sc_IDentify_IEEEF_LionWitte_675382.pdf)
+- 📄 [Artikelstil-Version](./M_Sc_IDentify_ArticleF_LionWitte_675382.pdf)
+
+---
 
 ## 🌟 Einführung
 
-In der digitalen Welt von heute ist die sichere Authentifizierung von Benutzern entscheidend. Traditionelle Methoden wie Passwörter sind oft unsicher und umständlich. **IDentify** bietet eine innovative Lösung durch die Nutzung von Canvas Fingerprinting, um einzigartige digitale Fingerabdrücke zu erstellen und die Benutzererfahrung zu verbessern.
+**IDentify** nutzt das HTML5-Canvas-Element, um einzigartige digitale Fingerabdrücke zu erstellen. Diese Technik ergänzt traditionelle Authentifizierungsmethoden und verbessert die Benutzerfreundlichkeit.
+
+---
 
 ## 🥅 Ziele
 
-Die Hauptziele des Projekts waren:
-- **Implementierung** der Canvas Fingerprinting-Technik zur sicheren Benutzeridentifikation.
-- **Optimierung** der Machine Learning-Modelle zur Verbesserung der Erkennungsgenauigkeit.
-- **Erweiterung** der Technik durch Integration zusätzlicher Fingerprinting-Methoden.
+- **Implementierung** eines Systems zur Erfassung von Canvas-Fingerprints.
+- **Optimierung** von Machine-Learning-Modellen zur Benutzererkennung.
+- **Erweiterung** durch zusätzliche Fingerprinting-Techniken.
 
-## 🔧 Methodik
+---
 
-- **Canvas Fingerprinting**: Nutzung des HTML5 Canvas-Elements zur Erstellung einzigartiger Fingerabdrücke.
-- **Machine Learning-Modelle**: Entwicklung und Training von sechs Modellen zur zuverlässigen Klassifikation von Fingerabdrücken.
-- **Mehrheitsabstimmung**: Einsatz einer Mehrheitsabstimmung zur Verbesserung der Modellgenauigkeit.
+## 🔧 Technologien
 
-## 🚀 Ergebnisse und Auswirkungen
+- **Frontend:** HTML5, JavaScript
+- **Backend:** Node.js, Express.js
+- **Machine Learning:** TensorFlow, PyTorch
+- **Datenbank:** MongoDB
 
-- **Erfolgreiche Implementierung**: Die Technik funktioniert wie erwartet und ermöglicht die Identifikation von Geräten basierend auf spezifischen Hardware- und Softwarekonfigurationen.
-- **Herausforderungen**: Modelle haben Schwierigkeiten, denselben Nutzer über verschiedene Sitzungen hinweg zu erkennen, was auf die Notwendigkeit weiterer Optimierung hinweist.
-- **Zukunftspotenzial**: Canvas Fingerprinting bietet eine vielversprechende Methode zur Verbesserung der Sicherheit und Benutzerfreundlichkeit von Authentifizierungssystemen.
+---
 
-## 🔮 Zukünftige Arbeite
+## 🚀 Ergebnisse
 
-Die zukünftigen Arbeiten im Rahmen meiner Masterarbeit konzentrieren sich auf die Optimierung und Erweiterung der bestehenden Techniken. Weitere Details findest du in der [Masterarbeit-Ziele](Masterarbeit_Ziele.md) Datei.
+- Erfolgreiche Implementierung eines Systems zur Benutzererkennung.
+- Training und Evaluierung von sechs Machine-Learning-Modellen (z. B. CNNs, Autoencoder).
+- Herausforderungen: Verbesserungsbedarf bei der Wiedererkennung über mehrere Sitzungen hinweg.
 
-## 📦 Installation
+---
 
-Für Installationsanweisungen, siehe [Installation.md](Installation.md).
+## 🔮 Weitere Informationen
 
-## 📬 Kontakt
+Für detaillierte Einblicke in Methodik, Ergebnisse und zukünftige Arbeiten lies die [Masterarbeit (PDF)](./Masterarbeit_IEEE.pdf) oder [Artikelstil-Version (PDF)](./Masterarbeit_Article.pdf).
 
-Für Fragen oder weitere Informationen über IDentify, kontaktieren Sie bitte [lion.witte@kobil.com](mailto:lion.witte@kobil.com).
+---
 
+# 🎉 IDentify: Revolutionizing Web Application Security with Canvas Fingerprinting 🎨
+
+Welcome to **IDentify**! This project enhances web application security by leveraging Canvas Fingerprinting and machine learning. It is based on my Master's thesis, available in two formats:
+
+- 📄 [IEEE Standard Version](./Masterarbeit_IEEE.pdf)
+- 📄 [Article Style Version](./Masterarbeit_Article.pdf)
+
+---
+
+## 🌟 Introduction
+
+**IDentify** uses the HTML5 canvas element to generate unique digital fingerprints. This technique complements traditional authentication methods while improving user experience.
+
+---
+
+## 🥅 Objectives
+
+- **Implementation** of a system to capture canvas fingerprints.
+- **Optimization** of machine learning models for user recognition.
+- **Extension** through additional fingerprinting techniques.
+
+---
+
+## 🔧 Technologies
+
+- **Frontend:** HTML5, JavaScript
+- **Backend:** Node.js, Express.js
+- **Machine Learning:** TensorFlow, PyTorch
+- **Database:** MongoDB
+
+---
+
+## 🚀 Results
+
+- Successful implementation of a system for user recognition.
+- Training and evaluation of six machine learning models (e.g., CNNs, Autoencoders).
+- Challenges: Improvements needed for cross-session recognition.
+
+---
+
+## 🔮 Further Information
+
+For detailed insights into methodology, results, and future work, refer to the [Master's Thesis (PDF)](./Masterarbeit_IEEE.pdf) or [Article Style Version (PDF)](./Masterarbeit_Article.pdf).
+
+---
+
+## 📬 Kontakt / Contact
+
+Für Fragen oder weitere Informationen: [lion.witte@kobil.com](mailto:lion.witte@kobil.com)  
+For inquiries or further information: [lion.witte@kobil.com](mailto:lion.witte@kobil.com)
