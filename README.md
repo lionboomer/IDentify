@@ -41,7 +41,7 @@ Willkommen bei **IDentify**! Dieses Projekt verbessert die Sicherheit von Webanw
 
 ## 🔮 Weitere Informationen
 
-Für detaillierte Einblicke in Methodik, Ergebnisse und zukünftige Arbeiten lies die [Masterarbeit (PDF)](./Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf) oder [Artikelstil-Version (PDF)](.Documents//M_Sc_IDentify_ArticleF_LionWitte_675382.pdf).
+Für detaillierte Einblicke in Methodik, Ergebnisse und zukünftige Arbeiten lies die [Masterarbeit (PDF)](./Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf) oder [Artikelstil-Version (PDF)](./Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf).
 
 📂 Zusätzlich findest du weitere Details zu mir und meinem beruflichen Hintergrund hier: [Lion Witte](./Info_Lion.md).  
 
