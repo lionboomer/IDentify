@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  db:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+      - ./fingerprintDB.fingerprints.json:/docker-entrypoint-initdb.d/fingerprintDB.fingerprints.json
+      - ./fingerprintDB.canvassamples.json:/docker-entrypoint-initdb.d/fingerprintDB.canvassamples.json
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+    ports:
+      - "27017:27017"
+    command: >
+      bash -c "
+        mongod --bind_ip_all --fork --logpath /var/log/mongodb.log &&
+        sleep 10 &&
+        /docker-entrypoint-initdb.d/init-mongo.sh &&
+        tail -f /dev/null
+      "
+
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.tr
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app
+      - /media/kobil/samsung41/lion:/ssd
+    environment:
+      - MONGO_URI=mongodb://db:27017/fingerprintDB
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - CUDA_VISIBLE_DEVICES=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    runtime: nvidia
+
+volumes:
+  mongo-data:

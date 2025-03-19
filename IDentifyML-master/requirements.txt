@@ -1,0 +1,19 @@
+numpy
+pandas
+pymongo
+Pillow
+imagehash
+tensorflow  # Installiere nur tensorflow, das sowohl CPU- als auch GPU-Unterstützung bietet
+matplotlib
+scikit-learn
+notebook
+seaborn
+tqdm
+pydot
+graphviz
+nvidia-ml-py3
+torch
+psutil
+numba
+gputil  # Optional, für zusätzliche GPU-Informationen
+genv  # GPU Environment and Cluster Management
