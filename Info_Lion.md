@@ -47,5 +47,11 @@ Neben meinem Masterabschluss habe ich zusätzliche Zertifizierungen erworben, di
 
 ---
 
+## 📄 Lebenslauf
+Einen detaillierten Überblick über meinen beruflichen Werdegang, Ausbildung und Projekte finden Sie in meinem ausführlichen Lebenslauf:
+- [Vollständiger Lebenslauf (PDF)](./Documents/Lebenslauf_witte.pdf)
+
+---
+
 ## 🚀 Interessen und Ziele  
-Mit einem starken Fokus auf IT-Sicherheit und Netzwerkschutz strebe ich danach, innovative Projekte umzusetzen und meine Expertise in einem zukunftsorientierten Umfeld weiterzuentwickeln. Besonders interessiere ich mich für Tätigkeiten in der Forschungslandschaft oder die Kombination von maschinellem Lernen mit Sicherheitsansätzen und Threat Intelligence, um neue Lösungen für die IT-Sicherheit zu schaffen.  
+Mit einem starken Fokus auf IT-Sicherheit und Netzwerkschutz strebe ich danach, innovative Projekte umzusetzen und meine Expertise in einem zukunftsorientierten Umfeld weiterzuentwickeln. Besonders interessiere ich mich für Tätigkeiten in der Forschungslandschaft oder die Kombination von maschinellem Lernen mit Sicherheitsansätzen und Threat Intelligence, um neue Lösungen für die IT-Sicherheit zu schaffen.

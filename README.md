@@ -2,8 +2,8 @@
 
 Willkommen bei **IDentify**! Dieses Projekt verbessert die Sicherheit von Webanwendungen durch den Einsatz von Canvas Fingerprinting und Machine Learning. Es basiert auf meiner Masterarbeit, die in zwei Formaten verfügbar ist:
 
-- 📄 [IEEE-Standardversion](./M_Sc_IDentify_IEEEF_LionWitte_675382.pdf)
-- 📄 [Artikelstil-Version](./M_Sc_IDentify_ArticleF_LionWitte_675382.pdf)
+- 📄 [IEEE-Standardversion](./Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf)
+- 📄 [Artikelstil-Version](./Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf)
 
 ---
 
@@ -89,7 +89,7 @@ Welcome to **IDentify**! This project enhances web application security by lever
 
 ## 🔮 Further Information
 
-For detailed insights into methodology, results, and future work, refer to the [Master's Thesis (PDF)](./Masterarbeit_IEEE.pdf) or [Article Style Version (PDF)](./Masterarbeit_Article.pdf).
+For detailed insights into methodology, results, and future work, refer to the [Master's Thesis (PDF)](./Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf) or [Article Style Version (PDF)](./Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf).
 
 📂 Additionally, you can find more details about me and my professional background here: [Lion Witte](./Info_Lion.md).  
 
