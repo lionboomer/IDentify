@@ -49,7 +49,7 @@ Neben meinem Masterabschluss habe ich zusätzliche Zertifizierungen erworben, di
 
 ## 📄 Lebenslauf
 Einen detaillierten Überblick über meinen beruflichen Werdegang, Ausbildung und Projekte finden Sie in meinem ausführlichen Lebenslauf:
-- [Vollständiger Lebenslauf (PDF)](./Documents/Lebenslauf_witte.pdf)
+- [Vollständiger Lebenslauf (PDF)](./Documents/Lebenslauf_Witte.pdf)
 
 ---
 
