@@ -1,23 +1,23 @@
-# Verwende ein Basis-Image mit Miniconda
+# Use base image with Miniconda for Python environment management
 FROM continuumio/miniconda3
 
-# Erstelle ein Arbeitsverzeichnis
+# Create working directory
 WORKDIR /usr/src/app
 
-# Kopiere die environment.yml-Datei
+# Copy environment.yml file for conda environment setup
 COPY environment.yml .
 
-# Erstelle das Conda-Environment
+# Create conda environment from yml file
 RUN conda env create -f environment.yml
 
-# Stelle sicher, dass das Conda-Environment aktiviert wird
+# Ensure conda environment is activated for subsequent commands
 SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
 
-# Kopiere den Rest des Anwendungs-Codes
+# Copy the rest of the application code
 COPY . .
 
-# Exponiere den Port für die Anwendung
+# Expose port for the application
 EXPOSE 3000
 
-# Starten Sie die Anwendung
+# Start the application using conda environment
 CMD ["conda", "run", "--no-capture-output", "-n", "myenv", "python", "app.py"]

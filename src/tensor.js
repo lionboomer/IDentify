@@ -1,13 +1,13 @@
 const tf = require('@tensorflow/tfjs-node');
 
-// Laden des Modells
+// Load the trained fingerprint recognition model
 let model;
 (async () => {
   model = await tf.loadLayersModel('file://model/fingerprint_model.h5');
   console.log('Model loaded successfully');
 })();
 
-// API-Endpunkt für Vorhersagen
+// API endpoint for canvas fingerprint predictions
 app.post('/predict', async (req, res) => {
   const { fingerprint } = req.body;
 

@@ -8,7 +8,7 @@ import os
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Aktiviert CORS für alle Routen
+CORS(app)  # Enable CORS for all routes
 
 @app.route('/status', methods=['GET'])
 def status():
@@ -26,9 +26,9 @@ def predict():
         if isinstance(fingerprint, str):
             fingerprint_data = fingerprint.split(",")[1]
             decoded = base64.b64decode(fingerprint_data)
-            img = Image.open(BytesIO(decoded)).convert('RGB')  # Konvertiere das Bild zu RGB
-            img_array = np.array(img) / 255.0  # Normalisiere zu [0, 1]
-            input_data = tf.image.resize(img_array, [75, 75])  # Ändere die Größe auf [75, 75]
+            img = Image.open(BytesIO(decoded)).convert('RGB')  # Convert image to RGB format
+            img_array = np.array(img) / 255.0  # Normalize pixel values to [0, 1]
+            input_data = tf.image.resize(img_array, [75, 75])  # Resize to standard 75x75 dimensions
             input_data = np.expand_dims(input_data, axis=0)
         else:
             raise ValueError("Fingerprint is not a string")

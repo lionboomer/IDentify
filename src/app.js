@@ -11,16 +11,15 @@ const axios = require("axios");
 const { exit } = require("process");
 const { exec } = require("child_process");
 const winston = require('winston');
-// Funktion zum Überprüfen, ob alle 6 Modelle existieren
 
-// Definieren Sie benutzerdefinierte Log-Level
+// Define custom logging levels for development and production
 const customLevels = {
   levels: {
     error: 0,
     warn: 1,
     info: 2,
     debug: 3,
-    development: 4 // Neues Level für Entwicklungslogs
+    development: 4 // New level for development logs
   },
   colors: {
     error: 'red',
@@ -31,7 +30,7 @@ const customLevels = {
   }
 };
 
-// Erstellen Sie den Logger
+// Create the Winston logger with custom levels
 const logger = winston.createLogger({
   levels: customLevels.levels,
   format: winston.format.combine(
@@ -43,16 +42,16 @@ const logger = winston.createLogger({
   ]
 });
 
-// Aktivieren Sie die Farben
+// Enable color coding for log levels
 winston.addColors(customLevels.colors);
 
-// Beispiel für Log-Nachrichten
-logger.development('Dies ist eine Entwicklungslog-Nachricht'); // Wird nur in der Entwicklung angezeigt
-logger.info('Dies ist eine Info-Meldung');
-logger.error('Dies ist eine Fehlermeldung');
+// Example log messages for testing
+logger.development('Development log message'); // Only shown in development
+logger.info('Info message');
+logger.error('Error message');
 winston.addColors(customLevels.colors);
 
-// Funktion zum Löschen der Konsole
+// Function to clear the console output
 function clearConsole() {
   process.stdout.write('\x1Bc');
 }
@@ -162,7 +161,7 @@ app.post("/fingerprints", async (req, res) => {
     return res.status(400).send("Missing fingerprint");
   }
 
-  // Entferne den Präfix "data:image/png;base64," vom Fingerprint
+  // Remove the "data:image/png;base64," prefix from the fingerprint data
   const cleanedFingerprint = fingerprint.replace(/^data:image\/\w+;base64,/, "");
 
   let fingerprintRecord = await Fingerprint.findOne({ fingerprintHash });
@@ -291,7 +290,7 @@ app.post("/fingerprint", async (req, res) => {
   }
 });
 
-// Endpunkt für den Modellstatus
+// API endpoint to check model training status
 app.get("/model-status", async (req, res) => {
   const username = req.query.username;
   if (!username) {
@@ -303,7 +302,7 @@ app.get("/model-status", async (req, res) => {
   res.json({ exists: modelExists });
 });
 
-// Endpunkt zum Erstellen von Modellen
+// API endpoint to create and train ML models
 app.post("/create-model", async (req, res) => {
   const username = req.body.username;
   logger.info(`Creating model for user: ${username}`);
@@ -343,7 +342,7 @@ app.post("/verify-challenge", async (req, res, next) => {
     `Received Prediction request for user ${username}: ${fingerprint}`
   );
   logger.info("Checking if Python Server is running for Endpoint /predict");
-  // Überprüfen, ob der ML-Server läuft
+  // Check if the ML server is running and responsive
   try {
     const mlServerResponse = await axios.get("http://127.0.0.1:5000/status");
     if (mlServerResponse.status !== 200) {
