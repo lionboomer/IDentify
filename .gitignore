@@ -142,9 +142,14 @@ hyperparameter_tuning/
 tf-gpu/
 testing/
 
-# Specific files
+# Specific files and large data files
 fingerprintDB.canvassamples.json
 src/fingerprintDB.fingerprints.json
+src/fingerprintDB.fingerprints.csv
+*.h5
+src/SWAT_auth/server/old/
+src/SWAT_auth/models/
+*.model
 
 # Logs
 logs/
@@ -166,4 +171,23 @@ pids/
 # Other
 /site
 .mypy_cache/
-.gitignore
+
+# Large Jupyter notebooks and outputs
+*.ipynb_checkpoints
+*-checkpoint.ipynb
+
+# Build and distribution files
+dist/
+build/
+*.egg-info/
+
+# VSCode workspace settings
+.vscode/settings.json
+.vscode/launch.json
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini

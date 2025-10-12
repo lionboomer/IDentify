@@ -27,11 +27,11 @@ def container_exists():
         return False
 
 def create_image():
-    # Überprüfen Sie, in welchem Verzeichnis wir uns befinden
+    # Check which directory we are currently in
     current_dir = os.getcwd()
-    project_dir = os.path.dirname(current_dir)  # Das Hauptverzeichnis Ihres Projekts
+    project_dir = os.path.dirname(current_dir)  # Main directory of the project
 
-    # Erstellen Sie den absoluten Pfad zu den SQL-Dateien
+    # Create absolute path to SQL files
     sql_dir = os.path.join(project_dir, "Database")
 
     print("Creating image...")

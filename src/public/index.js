@@ -426,12 +426,12 @@ let progressBarErrorCount = 0;
 const maxErrorAttempts = 0;
 
 
-// Intervall zum regelmäßigen Abrufen der Konsolenmeldungen
+// Interval to regularly fetch console messages from training server
 const terminalLogsInterval = setInterval(updateTerminalLogs, 1000);
 
 async function updateCircularProgressBar() {
   try {
-    // Abrufen des Trainingsfortschritts
+    // Fetch the current training progress from server
     const progressResponse = await fetch(
       "http://localhost:5001/training-progress"
     );
@@ -441,7 +441,7 @@ async function updateCircularProgressBar() {
     const progressData = await progressResponse.json();
     const trainingProgress = progressData.progress;
 
-    // Aktualisieren der kreisförmigen Fortschrittsanzeige
+    // Update the circular progress bar display
     const circularProgressBar = document.getElementById("circular-progress");
     const circularProgressText = document.getElementById(
       "circular-progress-text"
@@ -467,10 +467,10 @@ async function updateCircularProgressBar() {
   }
 }
 
-// Intervall zum regelmäßigen Aktualisieren der kreisförmigen Fortschrittsanzeige
+// Interval to regularly update the circular progress bar
 const progressBarInterval = setInterval(updateCircularProgressBar, 1000);
 
-// Funktion zum Überprüfen, ob das Modell existiert
+// Function to check if the ML model exists for a user
 async function checkModelStatus(username) {
   console.log("Requesting model status for username:", username);
   try {
@@ -626,7 +626,7 @@ function displayPredictionResults(data) {
       predictionItem.appendChild(predictionValue);
       individualPredictionsElement.appendChild(predictionItem);
 
-      // Dropdown-Option hinzufügen
+      // Add option to model dropdown menu
       const option = document.createElement("option");
       option.value = modelNameText;
       option.textContent = modelNameText;
@@ -641,7 +641,7 @@ document.addEventListener("DOMContentLoaded", () => {
   displayPredictionResults(exampleData);
 });
 
-// Funktion zum sequentiellen Ausführen von Funktionen
+// Function to execute fingerprint operations sequentially
 async function runFunctionsSequentially() {
   await sendFingerprint();
   await generateRequiredCanvasFingerprints(GlobalfingerprintHash);

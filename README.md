@@ -2,8 +2,31 @@
 
 Willkommen bei **IDentify**! Dieses Projekt verbessert die Sicherheit von Webanwendungen durch den Einsatz von Canvas Fingerprinting und Machine Learning. Es basiert auf meiner Masterarbeit, die in zwei Formaten verfügbar ist:
 
-- 📄 [IEEE-Standardversion](./Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf)
-- 📄 [Artikelstil-Version](./Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf)
+- 📄 [IEEE-Standardversion](./docs/Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf)
+- 📄 [Artikelstil-Version](./docs/Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf)
+
+## 📁 Project Structure
+
+```
+IDentify/
+├── 📄 README.md                    # This file
+├── 🐳 docker-compose.yml           # Multi-service Docker setup
+├── 🐳 Dockerfile.app              # Web application container
+├── 🐳 Dockerfile.ml               # Machine learning server container
+├── 📦 package.json                # Node.js dependencies
+├── 🐍 requirements.txt             # Python dependencies
+├── 🐍 environment.yml              # Conda environment
+├── 📊 Database/                    # Database scripts and configurations
+├── 📚 docs/                       # All documentation and research papers
+├── 🤖 ml/                         # Machine learning code and models
+│   ├── notebooks/
+│   │   ├── current/               # Active development notebooks
+│   │   └── archived/              # Older/obsolete notebooks
+│   ├── docker/                    # ML-specific Docker configurations
+│   └── requirements.txt           # ML-specific Python dependencies
+├── 🔧 Scripts/                    # Utility and setup scripts
+└── 💻 src/                       # Main application source code
+```
 
 ---
 
@@ -51,8 +74,8 @@ Für detaillierte Einblicke in Methodik, Ergebnisse und zukünftige Arbeiten lie
 
 Welcome to **IDentify**! This project enhances web application security by leveraging Canvas Fingerprinting and machine learning. It is based on my Master's thesis, available in two formats:
 
-- 📄 [IEEE Standard Version](./Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf)
-- 📄 [Article Style Version](./Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf)
+- 📄 [IEEE Standard Version](./docs/Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf)
+- 📄 [Article Style Version](./docs/Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf)
 
 ---
 
@@ -89,9 +112,57 @@ Welcome to **IDentify**! This project enhances web application security by lever
 
 ## 🔮 Further Information
 
-For detailed insights into methodology, results, and future work, refer to the [Master's Thesis (PDF)](./Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf) or [Article Style Version (PDF)](./Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf).
+For detailed insights into methodology, results, and future work, refer to the [Master's Thesis (PDF)](./docs/Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf) or [Article Style Version (PDF)](./docs/Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf).
 
-📂 Additionally, you can find more details about me and my professional background here: [Lion Witte](./Info_Lion.md).  
+📂 Additionally, you can find more details about me and my professional background here: [Lion Witte](./docs/Info_Lion.md).
+
+## 🚀 Quick Start
+
+### Using Docker (Recommended)
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/lionboomer/IDentify.git
+   cd IDentify
+   ```
+
+2. **Start all services:**
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Access the application:**
+   - Web App: http://localhost:3000
+   - ML Server: http://localhost:5000
+   - MongoDB: mongodb://localhost:27018
+
+### Manual Setup
+
+1. **Install Node.js dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Set up Python environment:**
+   ```bash
+   conda env create -f environment.yml
+   conda activate myenv
+   ```
+
+3. **Start MongoDB:**
+   ```bash
+   # Install and start MongoDB locally
+   ```
+
+4. **Run services:**
+   ```bash
+   # Terminal 1: Web App
+   npm start
+
+   # Terminal 2: ML Server  
+   conda activate myenv
+   python src/ml_server.py
+   ```  
 
 
 
