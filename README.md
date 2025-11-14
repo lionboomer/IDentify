@@ -56,7 +56,7 @@ IDentify/
 - Training und Evaluierung von sechs Machine-Learning-Modellen (z. B. CNNs, Autoencoder)
 - Herausforderungen: Verbesserungsbedarf bei der Wiedererkennung über mehrere Sitzungen hinweg
 
-## � Schnellstart
+## 🚀 Schnellstart
 
 ### Docker verwenden (Empfohlen)
 
@@ -104,7 +104,7 @@ IDentify/
    python src/ml_server.py
    ```
 
-## � Weitere Informationen
+## 📖 Weitere Informationen
 
 Für detaillierte Einblicke in Methodik, Ergebnisse und zukünftige Arbeiten lies die [Masterarbeit (PDF)](./docs/Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf) oder [Artikelstil-Version (PDF)](./docs/Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf).
 
