@@ -1,6 +1,30 @@
-# Merged .gitignore file for IDentify and IDentifyML projects
+# Repository hygiene rules
 
-# Python-related ignores
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.ropeproject
+.spyderproject
+.spyproject
+.vscode/
+
+# Local Codex metadata
+AGENTS.md
+
+# Node / frontend
+node_modules/
+.parcel-cache/
+dist/
+build/
+coverage/
+.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -9,185 +33,52 @@ __pycache__/
 .coverage
 .coverage.*
 .cache/
-htmlcov/
+.mypy_cache/
+.hypothesis/
 .tox/
 .nox/
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-
-# C extensions
-*.so
-
-# Distribution / packaging
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# JavaScript/Node.js related ignores
-node_modules/
-jspm_packages/
-bower_components/
-.pnp/
-.pnp.js
-.snowpack/
-.npm/
-.eslintcache/
-.stylelintcache/
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-*.tgz
-.yarn-integrity
-.grunt/
-
-# Framework specific ignores
-# Django
-local_settings.py
-db.sqlite3
-
-# Flask
-instance/
-.webassets-cache
-
-# Scrapy
-.scrapy
-
-# Sphinx
-docs/_build/
-
-# Jupyter & IPython
-.ipynb_checkpoints/
-*/.ipynb_checkpoints/*
-profile_default/
-ipython_config.py
-
-# Environment
-.env
-.env.test
-.env.production
-.venv
-env/
+htmlcov/
+.venv/
 venv/
+env/
 ENV/
-env.bak/
-venv.bak/
 .python-version
 
-# IDE settings
-.vscode/
-.idea/
-.spyderproject
-.spyproject
-.ropeproject
-.DS_Store
+# Jupyter
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+*-checkpoint.ipynb
 
-# Project-specific directories and files
-# Keys and sensitive data
-src/Keys/
+# Environments and secrets
+.env
+.env.*
+!.env.example
+src/Keys/*
+!src/Keys/README.md
+*.pem
+*.key
+*.crt
 
-# Models and data files
+# Generated ML artefacts and local data
 *.h5
-*.json
-*.csv
-src/SWAT_auth/models/
-src/SWAT_auth/models/*
-src/SWAT_auth/model/fingerprint_model.h5
-Modelle/
-
-# Image files
-*.png
-*.jpg
-*.jpeg
-*.gif
-
-# TensorFlow logs and outputs
+*.model
 logs/
 output/
-my_dir/
-tensorboard_logs/
 checkpoint/
 checkpoints/
-
-# Project specific directories
-Evaluierungsergebnisse/
+tensorboard_logs/
+my_dir/
 Data/
-Documented\ Old\ Data/
+Evaluierungsergebnisse/
+Documented Old Data/
 hyperparameter_tuning/
 tf-gpu/
 testing/
+Modelle/
+src/SWAT_auth/models/
+src/SWAT_auth/server/.ipynb_checkpoints/
 
-# Specific files and large data files
+# Generated datasets
 fingerprintDB.canvassamples.json
 src/fingerprintDB.fingerprints.json
 src/fingerprintDB.fingerprints.csv
-*.h5
-src/SWAT_auth/server/old/
-src/SWAT_auth/models/
-*.model
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Translations
-*.mo
-*.pot
-
-# Other
-/site
-.mypy_cache/
-
-# Large Jupyter notebooks and outputs
-*.ipynb_checkpoints
-*-checkpoint.ipynb
-
-# Build and distribution files
-dist/
-build/
-*.egg-info/
-
-# VSCode workspace settings
-.vscode/settings.json
-.vscode/launch.json
-
-# MacOS
-.DS_Store
-
-# Windows
-Thumbs.db
-desktop.ini

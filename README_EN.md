@@ -1,113 +1,99 @@
-# 🎉 IDentify: Revolutionizing Web Application Security with Canvas Fingerprinting 🎨
+# IDentify
 
-Welcome to **IDentify**! This project enhances web application security by leveraging Canvas Fingerprinting and machine learning. It is based on my Master's thesis, available in two formats:
+Canvas-based device fingerprinting with a Node.js web application, a Python ML inference service, and MongoDB. This repository documents the implementation that accompanied my Master's thesis in Applied Computer Science with a focus on network security.
 
-- 📄 [IEEE Standard Version](./docs/Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf)
-- 📄 [Article Style Version](./docs/Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf)
+## Scope
 
-## 📁 Project Structure
+IDentify explores whether browser-generated canvas fingerprints can be combined with machine learning to support user recognition. The repository includes:
+- a browser client for fingerprint collection
+- an Express-based API for persistence and orchestration
+- a Flask-based ML service for prediction
+- research notebooks and thesis material used during the evaluation phase
 
-```
+## Repository Structure
+
+```text
 IDentify/
-├── 📄 README.md                    # German documentation
-├── 📄 README_EN.md                 # This file (English)
-├── 🐳 docker-compose.yml           # Multi-service Docker setup
-├── 🐳 Dockerfile.app              # Web application container
-├── 🐳 Dockerfile.ml               # Machine learning server container
-├── 📦 package.json                # Node.js dependencies
-├── 🐍 requirements.txt             # Python dependencies
-├── 🐍 environment.yml              # Conda environment
-├── 📊 Database/                    # Database scripts and configurations
-├── 📚 docs/                       # All documentation and research papers
-├── 🤖 ml/                         # Machine learning code and models
-│   ├── notebooks/
-│   │   ├── current/               # Active development notebooks
-│   │   └── archived/              # Older/obsolete notebooks
-│   ├── docker/                    # ML-specific Docker configurations
-│   └── requirements.txt           # ML-specific Python dependencies
-├── 🔧 Scripts/                    # Utility and setup scripts
-└── 💻 src/                       # Main application source code
+|- src/                    Main application code
+|  |- app.js               Express server
+|  |- ml_server.py         Flask ML API
+|  |- public/              Frontend assets
+|  |- SWAT_auth/           Model training scripts and legacy experiments
+|- ml/                     Notebook-based research and ML setup
+|  |- notebooks/current/   Current notebooks
+|  |- notebooks/archived/  Historical experiments kept for reference
+|- Database/               Database-related legacy scripts
+|- docs/                   Installation notes and thesis documents
+|- Scripts/                Helper scripts
+|- docker-compose.yml      Local multi-service setup
 ```
 
-## 🌟 Introduction
+## Quick Start
 
-**IDentify** uses the HTML5 canvas element to generate unique digital fingerprints. This technique complements traditional authentication methods while improving user experience.
+### Option 1: Docker Compose
 
-## 🥅 Objectives
+```bash
+docker-compose up --build
+```
 
-- **Implementation** of a system to capture canvas fingerprints
-- **Optimization** of machine learning models for user recognition
-- **Extension** through additional fingerprinting techniques
+Available services after startup:
+- Web application: `http://localhost:3000`
+- ML service: `http://localhost:5000`
+- MongoDB: `mongodb://localhost:27018`
 
-## 🔧 Technologies
+### Option 2: Manual Development Setup
 
-- **Frontend:** HTML5, JavaScript
-- **Backend:** Node.js, Express.js
-- **Machine Learning:** TensorFlow, PyTorch
-- **Database:** MongoDB
-
-## 🚀 Results
-
-- Successful implementation of a system for user recognition
-- Training and evaluation of six machine learning models (e.g., CNNs, Autoencoders)
-- Challenges: Improvements needed for cross-session recognition
-
-## 🚀 Quick Start
-
-### Using Docker (Recommended)
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/lionboomer/IDentify.git
-   cd IDentify
-   ```
-
-2. **Start all services:**
-   ```bash
-   docker-compose up -d
-   ```
-
-3. **Access the application:**
-   - Web App: http://localhost:3000
-   - ML Server: http://localhost:5000
-   - MongoDB: mongodb://localhost:27018
-
-### Manual Setup
-
-1. **Install Node.js dependencies:**
+1. Install Node.js dependencies:
    ```bash
    npm install
    ```
-
-2. **Set up Python environment:**
+2. Install Python dependencies:
    ```bash
-   conda env create -f environment.yml
-   conda activate myenv
+   pip install -r requirements.txt
    ```
-
-3. **Start MongoDB:**
+3. Start MongoDB locally.
+4. Start the web server:
    ```bash
-   # Install and start MongoDB locally
+   npm run dev
    ```
-
-4. **Run services:**
+5. Start the ML server in a second terminal:
    ```bash
-   # Terminal 1: Web App
-   npm start
-
-   # Terminal 2: ML Server  
-   conda activate myenv
    python src/ml_server.py
    ```
 
-## 🔮 Further Information
+## Configuration
 
-For detailed insights into methodology, results, and future work, refer to the [Master's Thesis (PDF)](./docs/Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf) or [Article Style Version (PDF)](./docs/Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf).
+The application can be configured via environment variables. Copy `.env.example` to a local `.env` file if needed.
 
-📂 Additionally, you can find more details about me and my professional background here: [Lion Witte](./docs/Info_Lion.md).
+Important variables:
+- `PORT`: Express application port, default `3000`
+- `MONGO_URI`: MongoDB connection string
+- `ML_SERVER_URL`: URL of the Flask prediction service
+- `HTTP_PORT`: optional extra HTTP listener
+- `HTTPS_PORT`: optional HTTPS listener
+- `TLS_KEY_PATH` and `TLS_CERT_PATH`: optional TLS certificate paths for local HTTPS
 
----
+By default, the repository does not require committed certificates. HTTPS is only enabled when explicit certificate paths are provided.
 
-## 📬 Contact
+## Thesis Material
 
-For inquiries or further information: [lion.witte@kobil.com](mailto:lion@witte-maler.de)
+The following thesis documents are included for reference:
+- [IEEE version](./docs/Documents/M_Sc_IDentify_IEEEF_LionWitte_675382.pdf)
+- [Article version](./docs/Documents/M_Sc_IDentify_ArticleF_LionWitte_675382.pdf)
+
+## Notes on Research Code
+
+This repository contains both application code and research artefacts. Historical notebooks are intentionally retained to document the evolution of the thesis work, but they should be treated as research material rather than production-ready modules.
+
+## Security and Publishing Notes
+
+Before publishing or mirroring the repository:
+- do not commit `.env` files, certificates, model artefacts, or generated datasets
+- rotate any credentials or certificates that were previously stored in the repository
+- review Git history for sensitive files, because removing a file from the current tree does not remove it from past commits
+
+## Additional Documentation
+
+- [Installation notes](./docs/Installation.md)
+- [Project goals](./docs/Goals.md)
+- [Master thesis goals](./docs/Masterarbeit_Ziele.md)

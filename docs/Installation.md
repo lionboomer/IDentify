@@ -1,148 +1,64 @@
-# 🎉 IDentify: Revolutionizing Web Application Security with Canvas Fingerprinting 🎨
+# Installation
 
-## 🛠️ Installation
+This document complements the main repository README with a slightly more detailed local setup.
 
-### 🐳 Docker-Installation
+## Requirements
 
-1. **Voraussetzungen**:
-    - Docker
-    - Docker Compose
+- Node.js 18 or newer
+- Python 3.10 or newer
+- MongoDB
+- Optional: Docker and Docker Compose for the containerized setup
 
-2. **Schritte**:
-    1. Klone das Repository:
-        ```sh
-        git clone https://github.com/username/IDentify.git
-        cd IDentify
-        ```
+## Local Setup
 
-    2. Erstelle und starte die Docker-Container:
-        ```sh
-        docker-compose up --build
-        ```
+1. Install JavaScript dependencies.
 
-    3. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
+```bash
+npm install
+```
 
-### 🖥️ Manuelle Installation
+2. Install Python dependencies.
 
-#### 🐧 Linux
+```bash
+pip install -r requirements.txt
+```
 
-1. **Voraussetzungen**:
-    - Python 3.8+
-    - Node.js 14+
-    - MongoDB
+3. Start MongoDB locally and make sure the connection string matches `MONGO_URI`.
 
-2. **Schritte**:
-    1. Klone das Repository:
-        ```sh
-        git clone https://github.com/username/IDentify.git
-        cd IDentify
-        ```
+4. Create a local `.env` file if you want to override defaults.
 
-    2. Installiere die Python-Abhängigkeiten:
-        ```sh
-        pip install -r requirements.txt
-        ```
+```env
+PORT=3000
+MONGO_URI=mongodb://127.0.0.1:27017/fingerprintDB
+ML_SERVER_URL=http://127.0.0.1:5000
+```
 
-    3. Installiere die Node.js-Abhängigkeiten:
-        ```sh
-        npm install
-        ```
+5. Start the Express application.
 
-    4. Starte MongoDB:
-        ```sh
-        sudo systemctl start mongod
-        ```
+```bash
+npm run dev
+```
 
-    5. Starte die Anwendung:
-        ```sh
-        node src/app.js
-        python src/ml_server.py
-        ```
+6. Start the Flask ML service in a second terminal.
 
-    6. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
+```bash
+python src/ml_server.py
+```
 
-#### 🪟 Windows
+## Optional HTTPS for Local Development
 
-1. **Voraussetzungen**:
-    - Python 3.8+
-    - Node.js 14+
-    - MongoDB
+HTTPS is disabled by default. To enable it locally, point the application to certificate files outside the repository:
 
-2. **Schritte**:
-    1. Klone das Repository:
-        ```sh
-        git clone https://github.com/username/IDentify.git
-        cd IDentify
-        ```
+```env
+TLS_KEY_PATH=C:/path/to/private-key.pem
+TLS_CERT_PATH=C:/path/to/certificate.pem
+HTTPS_PORT=443
+```
 
-    2. Installiere die Python-Abhängigkeiten:
-        ```sh
-        pip install -r requirements.txt
-        ```
+## Docker Setup
 
-    3. Installiere die Node.js-Abhängigkeiten:
-        ```sh
-        npm install
-        ```
+```bash
+docker-compose up --build
+```
 
-    4. Starte MongoDB:
-        ```sh
-        net start MongoDB
-        ```
-
-    5. Starte die Anwendung:
-        ```sh
-        node src/app.js
-        python src/ml_server.py
-        ```
-
-    6. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
-
-### 🐍 Installation mit Anaconda
-
-1. **Voraussetzungen**:
-    - Anaconda oder Miniconda
-
-2. **Schritte**:
-    1. Klone das Repository:
-        ```sh
-        git clone https://github.com/username/IDentify.git
-        cd IDentify
-        ```
-
-    2. Erstelle eine neue Anaconda-Umgebung:
-        ```sh
-        conda create --name identify_env python=3.8
-        conda activate identify_env
-        ```
-
-    3. Installiere die Python-Abhängigkeiten:
-        ```sh
-        pip install -r requirements.txt
-        ```
-
-    4. Installiere die Node.js-Abhängigkeiten:
-        ```sh
-        npm install
-        ```
-
-    5. Starte MongoDB:
-        - Unter Linux:
-            ```sh
-            sudo systemctl start mongod
-            ```
-        - Unter Windows:
-            ```sh
-            net start MongoDB
-            ```
-
-    6. Starte die Anwendung:
-        ```sh
-        node src/app.js
-        python src/ml_server.py
-        ```
-
-    7. Öffne deinen Browser und gehe zu [`http://localhost:3000`](http://localhost:3000).
-   
-
-   ## If you encounter any issues during the installation, please contact me via Email or LinkedIn. I will be happy to help you. 🤝
+This starts the web app, ML service, and MongoDB with development-friendly defaults.
