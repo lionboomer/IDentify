@@ -8,7 +8,7 @@ const http = require("http");
 const os = require("os");
 const bodyParser = require("body-parser");
 const axios = require("axios");
-const { exit } = require("process");
+
 const { exec } = require("child_process");
 const winston = require('winston');
 
@@ -45,11 +45,7 @@ const logger = winston.createLogger({
 // Enable color coding for log levels
 winston.addColors(customLevels.colors);
 
-// Example log messages for testing
-logger.development('Development log message'); // Only shown in development
-logger.info('Info message');
-logger.error('Error message');
-winston.addColors(customLevels.colors);
+
 
 // Function to clear the console output
 function clearConsole() {
@@ -77,17 +73,14 @@ async function doesModelExist(username) {
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
-const privateKey = fs.readFileSync("src/Keys/privateKey.pem", "utf8");
-const certificate = fs.readFileSync("src/Keys/certificate.pem", "utf8");
-const credentials = { key: privateKey, cert: certificate };
-
 let progress = 0;
+const mlServerUrl = process.env.ML_SERVER_URL || "http://127.0.0.1:5000";
 
 // app.js
 async function connectDB() {
   try {
     if (!mongoose.connection.readyState) {
-      const mongoUri = process.env.MONGO_URI || "mongodb://mongo:27018/fingerprintDB";
+      const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/fingerprintDB";
       await mongoose.connect(mongoUri, {
         serverSelectionTimeoutMS: 5000,
       });
@@ -113,7 +106,6 @@ const FingerprintSchema = new mongoose.Schema({
 
 const Fingerprint = mongoose.model("Fingerprint", FingerprintSchema);
 
-app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 const port = process.env.PORT || 3000;
@@ -344,7 +336,7 @@ app.post("/verify-challenge", async (req, res, next) => {
   logger.info("Checking if Python Server is running for Endpoint /predict");
   // Check if the ML server is running and responsive
   try {
-    const mlServerResponse = await axios.get("http://127.0.0.1:5000/status");
+    const mlServerResponse = await axios.get(`${mlServerUrl}/status`);
     if (mlServerResponse.status !== 200) {
       console.error("ML server is not running");
       return res.status(500).send("ML server is not running");
@@ -357,7 +349,7 @@ app.post("/verify-challenge", async (req, res, next) => {
 
   logger.info("Continue with /predict Endpoint");
   try {
-    const response = await axios.post("http://127.0.0.1:5000/predict", {
+    const response = await axios.post(`${mlServerUrl}/predict`, {
       fingerprint,
       username,
     });
@@ -414,10 +406,33 @@ for (let devName in interfaces) {
   }
 }
 
-http.createServer(app).listen(80, () => {
-  logger.info(`HTTP Server is accessible on http://${serverIP}:80`);
-});
+const fallbackHost = serverIP || "127.0.0.1";
+const httpPort = Number(process.env.HTTP_PORT || 0);
+const httpsPort = Number(process.env.HTTPS_PORT || 0);
+const tlsKeyPath = process.env.TLS_KEY_PATH;
+const tlsCertPath = process.env.TLS_CERT_PATH;
 
-https.createServer(credentials, app).listen(443, () => {
-  logger.info(`HTTPS Server is accessible on https://${serverIP}:443`);
-});
+if (httpPort > 0) {
+  http.createServer(app).listen(httpPort, () => {
+    logger.info(`HTTP Server is accessible on http://${fallbackHost}:${httpPort}`);
+  });
+}
+
+if (tlsKeyPath && tlsCertPath) {
+  try {
+    const credentials = {
+      key: fs.readFileSync(tlsKeyPath, "utf8"),
+      cert: fs.readFileSync(tlsCertPath, "utf8"),
+    };
+
+    https.createServer(credentials, app).listen(httpsPort || 443, () => {
+      logger.info(
+        `HTTPS Server is accessible on https://${fallbackHost}:${httpsPort || 443}`
+      );
+    });
+  } catch (error) {
+    logger.warn(`HTTPS disabled: ${error.message}`);
+  }
+} else {
+  logger.info("HTTPS disabled. Set TLS_KEY_PATH and TLS_CERT_PATH to enable it.");
+}

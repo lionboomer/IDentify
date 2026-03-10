@@ -1,18 +1,15 @@
 version: '3.8'
 
 services:
-  # Main web application service
   app:
     build:
       context: .
       dockerfile: Dockerfile.app
     ports:
       - "3000:3000"
-      - "80:80"
-      - "443:443"
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules  # Avoid overwriting node_modules
+      - /usr/src/app/node_modules
     environment:
       - NODE_ENV=development
       - MONGO_URI=mongodb://db:27017/fingerprintDB
@@ -22,7 +19,6 @@ services:
       - ml_server
     restart: unless-stopped
 
-  # Machine Learning server service
   ml_server:
     build:
       context: .
@@ -38,18 +34,12 @@ services:
       - db
     restart: unless-stopped
 
-  # MongoDB database service
   db:
     image: mongo:latest
     ports:
-      - "27018:27017"  # External:Internal port mapping
+      - "27018:27017"
     volumes:
       - mongo-data:/data/db
-      - ./Database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
-      - MONGO_INITDB_DATABASE=fingerprintDB
     restart: unless-stopped
 
 volumes:
